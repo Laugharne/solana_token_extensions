@@ -14,6 +14,29 @@ These extensions allow for the storage and management of additional information 
 
 The idea is to have a standard base for tokens (_similar to ERC-20 on Ethereum_) while offering flexibility for custom features that developers might want to add, such as transaction fees, transfer limits, vesting conditions, and more.
 
+### Not just metadata !
+
+Technically, **Solana's token extensions** are not just standard tokens with additional standardized metadata. They provide **additional functionality at the program level** via the SPL Token 2022 program, adding specific behaviors and management rules through **advanced instructions and configurations**.
+
+Here’s why **token extensions** go beyond just standard metadata:
+
+1. **Protocol-level programming**:
+   Token extensions introduce **extra behaviors** that are directly managed by the **SPL Token 2022 program**. For instance, features like interest accrual, transfer fees, or roles such as the "_permanent delegate_" are mechanisms that are integrated within the program itself, not just static metadata.
+
+2. **Active functionality**:
+   Unlike metadata, which is used to store static information (such as token name, image, or basic attributes), extensions add **dynamic functionality**. For example, an **interest-bearing token** actively calculates and applies interest to token accounts, and a **transfer fee token** automatically imposes transaction fees.
+
+3. **Specific logic within the program**:
+   These extensions alter how the SPL program manages tokens. For example, the SPL Token 2022 program knows how to handle **non-transferable tokens** or **immutable owners**, which are not simply metadata but actual rules that enforce specific restrictions on transfers or account management.
+
+4. **Enhanced interoperability**:
+   Extensions are standardized configurations within the SPL Token 2022 program, making them interoperable between dApps and services on Solana. Rather than just storing metadata and having each project interpret them differently, these extensions provide **uniform functionality** directly managed by the SPL program.
+
+Let’s take the **Interest-Bearing Token**:
+- It’s not just metadata saying "_this token generates interest._" The SPL program actually **applies interest** on the balance of token accounts based on parameters defined when the token was created.
+- Interest calculations and balance updates happen **automatically** by the program with each interaction involving the token, requiring active management.
+
+Solana’s **token extensions** have **additional features** programmed into **SPL Token 2022**. They provide active mechanisms and dynamic behaviors like interest accrual, fees, or restrictions that are enforced by the on-chain program.
 
 ### Available Token Extensions
 
