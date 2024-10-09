@@ -1,0 +1,1 @@
+console.log("To run Token Extensions examples, see README file, please...");
