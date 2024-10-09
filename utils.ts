@@ -111,8 +111,13 @@ export function subTitle(text: string) {
 	console.log("");
 }
 
+export function info(text: string) {
+	console.log("ℹ️ "+text);
+}
 
-
+export function warning(text: string) {
+	console.log("⚠️ "+text);
+}
 
 export async function createWalletFile(name: string, cluster: string) {
 

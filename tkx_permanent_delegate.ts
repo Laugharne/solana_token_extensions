@@ -1,11 +1,10 @@
 // @ts-check
 
 import {
-	Connection,
 	Keypair,
 	SystemProgram,
 	Transaction,
-	sendAndConfirmTransaction
+	sendAndConfirmTransaction,
 } from "@solana/web3.js";
 
 import {
@@ -13,7 +12,7 @@ import {
 	TOKEN_2022_PROGRAM_ID,
 	createInitializeMintInstruction,
 	createInitializePermanentDelegateInstruction,
-	getMintLen
+	getMintLen,
 } from "@solana/spl-token";
 
 import { cluster, connection } from "./config";
@@ -22,14 +21,17 @@ import {
 	displayTransactionLink,
 	displayWallet,
 	readWalletFile,
-	subTitle,
 	title,
+	subTitle,
+	info,
 } from './utils';
 
 const main = async () => {
 	try {
 
 		title("Solana Token Extensions (Permanent Delegate)");
+
+		info("Get keys...")
 		const pkPayer = await readWalletFile("payer", cluster);
 		if( pkPayer == null) {return;}
 		displayWallet("Payer", pkPayer);
@@ -41,7 +43,7 @@ const main = async () => {
 		displayWallet("Delegate", pkPermanentDelegate);
 		console.log("");
 
-		subTitle("Fetch the minimum balance needed to exempt an account of rent");
+		info("Fetch the minimum balance needed to exempt an account of rent");
 		const mintLen  = getMintLen([ExtensionType.PermanentDelegate]); // !
 		const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
@@ -66,6 +68,7 @@ const main = async () => {
 		subTitle("Initialize mint");
 
 		const decimals = 9;
+		info("Decimals: "+decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
 			pkMintAuthority.publicKey,

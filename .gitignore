@@ -173,3 +173,12 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+backup/
+.zipignore
+history.log
+versions.log
+notes.md
+notes.txt
+solana_cfg.log
+test-ledger/
+notes/

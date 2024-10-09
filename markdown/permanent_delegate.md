@@ -9,7 +9,7 @@ If not previously done...
 **1. Clone the repo:**
 
 ```bash
-git clone https://github.com/Laugharne/ssf_s8_exo.git
+git clone https://github.com/Laugharne/solana_token_extensions
 ```
 **2. Install bun if needed**
 
@@ -58,6 +58,7 @@ Create Payer wallet
 🏧 Airdrop       : 2 SOL to 9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY
 ✅ Payer         : https://explorer.solana.com/address/9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY?cluster=devnet
 ```
+Or reuse a wallet file in `./keypair` directory !
 
 
 **To run:**
@@ -98,6 +99,9 @@ Procedd to transactions
 
 ![](2024-10-09-14-17-11.png)
 
+![](2024-10-09-15-44-50.png)
+
+
 **Instruction Data:**
 
 ```json
@@ -111,6 +115,7 @@ Procedd to transactions
 ```
 
 This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+
 
 ## Permanent Delegate with Token Extensions on Solana
 
