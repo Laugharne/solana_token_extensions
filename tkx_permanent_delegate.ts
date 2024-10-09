@@ -78,7 +78,7 @@ const main = async () => {
 			TOKEN_2022_PROGRAM_ID
 		);
 
-		subTitle("Procedd to transactions");
+		subTitle("Proceed to transactions");
 
 		const tx = new Transaction().add(
 			ixCreateAccount,

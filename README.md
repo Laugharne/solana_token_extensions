@@ -68,6 +68,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | --------------------------------------------------------------- |
 | [Permanent Delegate](./markdown/permanent_delegate.md)          |
 | [Interest Bearing](./markdown/interest_bearing.md)              |
+| [Non-tranferable Tokens](./markdown/non_transferable_tokens.md) |
 |                                                                 |
 
 

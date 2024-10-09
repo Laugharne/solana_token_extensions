@@ -141,7 +141,53 @@ With "_interest bearing tokens_", the longer you keep your tokens in an account,
 
 ## Code
 
-TODO
+### 1. Creating an Interest-Bearing Mint with `createInterestBearingMint`
+
+This code creates an **interest-bearing mint**. A mint is essentially a smart contract that can create new tokens. In this case, the mint produces tokens that can **earn interest over time** based on a specific rate controlled by the `pkRateAuthority`. The `decimals` parameter specifies how many decimal places the token can have, which is important for defining its smallest unit.
+
+```typescript
+const mint = await createInterestBearingMint(
+    connection,                // The Solana connection object to interact with the blockchain
+    pkPayer,                   // Public key of the paying account (pays for rent and fees)
+    pkMintAuthority.publicKey, // Public key of the mint authority (controls the minting of tokens)
+    pkMintAuthority.publicKey, // Public key of the freeze authority
+                               // (can optionally freeze accounts, here set to the same as mint authority)
+    pkRateAuthority.publicKey, // Public key of the rate authority (controls the interest rate of the tokens)
+    rate,                      // The interest rate that the tokens will earn over time
+    decimals,                  // Number of decimal places for the tokens
+    pkMint,                    // Public key of the mint account that will be created
+    undefined,                 // Optional parameter for the freeze authority (left undefined here)
+    TOKEN_2022_PROGRAM_ID      // The program ID for the Token 2022 program
+);
+```
+
+### 2. Periodically Displaying the Token Balance in User-Friendly Format
+
+This block of code uses `setInterval` to **check the account balance** and **display it every second** in a more user-friendly format.
+
+- `amountToUiAmount` is a function that converts the raw token balance (_which might have a lot of decimal places_) into a human-readable format, considering the decimal places specified when the mint was created.
+- Every second, it logs the **updated balance** (`uiAmount`), reflecting the interest being earned on the tokens over time.
+
+```typescript
+setInterval(async () => {
+    const uiAmount = await amountToUiAmount(
+        connection,           // The Solana connection object
+        pkPayer,              // Public key of the paying account (the account holding the tokens)
+        mint,                 // The interest-bearing mint created earlier
+        accountBalance,       // The balance of tokens in the account (in raw token units)
+        TOKEN_2022_PROGRAM_ID // The program ID for the Token 2022 program
+    );
+    console.log("- " + uiAmount);
+}, 1000);
+```
+
+This setup is great for **monitoring how tokens are growing** in value thanks to the interest-earning functionality!
+
+
+### Summary
+
+- The first part of the code creates an **interest-bearing mint**, which produces tokens that accrue interest over time.
+- The second part periodically fetches the token balance and displays it in a user-friendly format, taking into account the ongoing interest accrual.
 
 
 ## Source
