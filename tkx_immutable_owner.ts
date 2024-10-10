@@ -11,10 +11,14 @@ import {
 	ExtensionType,
 	TOKEN_2022_PROGRAM_ID,
 	amountToUiAmount,
+	createInitializeAccountInstruction,
+	createInitializeImmutableOwnerInstruction,
 	createInitializeMintInstruction,
 	createInitializeNonTransferableMintInstruction,
 	createInitializePermanentDelegateInstruction,
 	createInterestBearingMint,
+	createMint,
+	getAccountLen,
 	getMintLen,
 	updateRateInterestBearingMint,
 } from "@solana/spl-token";
@@ -34,64 +38,80 @@ import {
 const main = async () => {
 	try {
 
-		title("Solana Token Extensions (Non-Transferable Tokens)");
+		title("Solana Token Extensions (Imùmutable Owner)");
 
 		subTitle("Get keys...");
 		const pkPayer = await readWalletFile("payer", cluster);
 		if( pkPayer == null) {return;}
 		displayWallet("Payer", pkPayer);
 
-		const pkMint = Keypair.generate();
-		displayWallet("Mint", pkMint);
+		const pkMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", pkMintAuthority);
+
+		const pkOwner = Keypair.generate();
+		displayWallet("Owner", pkOwner);
+
+		const pkAccount = Keypair.generate();
+		displayWallet("Account", pkAccount);
+
+		const decimals = 0;
+		infoPair("Decimals: ", decimals);
+
+		const mint = await createMint(
+			connection,
+			pkPayer,
+			pkMintAuthority.publicKey,
+			pkMintAuthority.publicKey,
+			decimals,
+			undefined,
+			undefined,
+			TOKEN_2022_PROGRAM_ID
+		);
 
 		console.log("");
 
 		info("Fetch the minimum balance needed to exempt an account for rent");
-		const mintLen  = getMintLen([ExtensionType.NonTransferable]); // !
-		const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+		const accountLen = getAccountLen([ExtensionType.ImmutableOwner]);
+		const lamports   = await connection.getMinimumBalanceForRentExemption(accountLen);
 
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
 			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMint.publicKey,
-			space           : mintLen,
+			newAccountPubkey: pkAccount.publicKey,
+			space           : accountLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
 		});
 
-		subTitle("Non-Transferable Token Init.");
+		subTitle("Immutable Owner Init.");
 
-		const ixInitializeNonTransferableMint = createInitializeNonTransferableMintInstruction(
-			pkMint.publicKey,
+		const ixInitializeImmutableOwner = createInitializeImmutableOwnerInstruction(
+			pkAccount.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
-		subTitle("Initialize mint");
-
-		const decimals = 9;
-		infoPair("Decimals", decimals);
-
-		const ixInitializeMint = createInitializeMintInstruction(
-			pkMint.publicKey,
-			decimals,
-			pkPayer.publicKey,
-			null,
+		const ixInitializeAccount = createInitializeAccountInstruction(
+			pkAccount.publicKey,
+			mint,
+			pkOwner.publicKey,
 			TOKEN_2022_PROGRAM_ID
+
 		);
 
 		subTitle("Proceed to transactions");
 
 		const tx = new Transaction().add(
 			ixCreateAccount,
-			ixInitializeNonTransferableMint,
-			ixInitializeMint
+			ixInitializeImmutableOwner,
+			ixInitializeAccount
 		);
 
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMint]
+			[pkPayer, pkAccount],
+			undefined
 		);
 
 		displayTransactionLink("Signature", sigTx, cluster);
