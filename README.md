@@ -14,6 +14,7 @@ These extensions allow for the storage and management of additional information 
 
 The idea is to have a standard base for tokens (_similar to ERC-20 on Ethereum_) while offering flexibility for custom features that developers might want to add, such as transaction fees, transfer limits, vesting conditions, and more.
 
+
 ### Not just metadata !
 
 Technically, **Solana's token extensions** are not just standard tokens with additional standardized metadata. They provide **additional functionality at the program level** via the SPL Token 2022 program, adding specific behaviors and management rules through **advanced instructions and configurations**.
@@ -38,6 +39,7 @@ Let’s take the **Interest-Bearing Token**:
 
 Solana’s **token extensions** have **additional features** programmed into **SPL Token 2022**. They provide active mechanisms and dynamic behaviors like interest accrual, fees, or restrictions that are enforced by the on-chain program.
 
+
 ### Available Token Extensions
 
 Here are some of the **Token Extensions** available in the SPL program on Solana:
@@ -50,10 +52,6 @@ Here are some of the **Token Extensions** available in the SPL program on Solana
    - Allows defining interest rates for token accounts, which is useful for decentralized finance (_DeFi_) applications like lending or savings.
    - Tokens can earn interest over time according to a predefined configuration.
 
-1. **Transfer Fee Extension** (`TransferFeeConfig`):
-   - Allows defining fees for each token transfer. These fees can be collected by the designated "_fee collector_".
-   - Commonly used for applications like stablecoins or other tokens that require management fees.
-
 3. **Transferable or Non-Transferable Extension**:
    - Enables setting whether a token is transferable or non-transferable.
    - For example, some governance or reward tokens may be set as non-transferable.
@@ -62,12 +60,17 @@ Here are some of the **Token Extensions** available in the SPL program on Solana
    - Makes the token owner's address immutable, preventing any future transfer of ownership.
    - Used in cases where it's important that the token account owner never changes.
 
+1. **Transfer Fee Extension** (`TransferFeeConfig`):
+   - Allows defining fees for each token transfer. These fees can be collected by the designated "_fee collector_".
+   - Commonly used for applications like stablecoins or other tokens that require management fees.
+
 5. **Mint Close Authority Extension** (`MintCloseAuthority`):
    - Allows defining a close authority for the mint account.
    - This authority can decide to close the mint account once all tokens have been issued or under specific conditions.
 
 6. **CPI Guard Extension** (`CpiGuard`):
    - Used to control access to cross-program invocation (_CPI_) instructions and protect certain operations from unauthorized calls.
+
 
 ### How to Use Token Extensions?
 

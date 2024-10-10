@@ -10,9 +10,13 @@ import {
 import {
 	ExtensionType,
 	TOKEN_2022_PROGRAM_ID,
+	amountToUiAmount,
 	createInitializeMintInstruction,
+	createInitializeNonTransferableMintInstruction,
 	createInitializePermanentDelegateInstruction,
+	createInterestBearingMint,
 	getMintLen,
+	updateRateInterestBearingMint,
 } from "@solana/spl-token";
 
 import { cluster, connection } from "./config";
@@ -24,56 +28,54 @@ import {
 	title,
 	subTitle,
 	info,
+	infoPair,
 } from './utils';
 
 const main = async () => {
 	try {
 
-		title("Solana Token Extensions (Permanent Delegate)");
+		title("Solana Token Extensions (Non-Transferable Tokens)");
 
-		info("Get keys...")
+		subTitle("Get keys...");
 		const pkPayer = await readWalletFile("payer", cluster);
 		if( pkPayer == null) {return;}
 		displayWallet("Payer", pkPayer);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const pkMint = Keypair.generate();
+		displayWallet("Mint", pkMint);
 
-		const pkPermanentDelegate = Keypair.generate();
-		displayWallet("Delegate", pkPermanentDelegate);
 		console.log("");
 
 		info("Fetch the minimum balance needed to exempt an account of rent");
-		const mintLen  = getMintLen([ExtensionType.PermanentDelegate]); // !
+		const mintLen  = getMintLen([ExtensionType.NonTransferable]); // !
 		const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
 			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMintAuthority.publicKey,
+			newAccountPubkey: pkMint.publicKey,
 			space           : mintLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
 		});
 
-		subTitle("Permanent delegate Init.");
+		subTitle("Non-Transferable Token Init.");
 
-		const ixInitializePermanentDelegate = createInitializePermanentDelegateInstruction(
-			pkMintAuthority.publicKey,
-			pkPermanentDelegate.publicKey,
+		const ixInitializeNonTransferableMint = createInitializeNonTransferableMintInstruction(
+			pkMint.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
 		subTitle("Initialize mint");
 
 		const decimals = 9;
-		info("Decimals: "+decimals);
+		infoPair("Decimals", decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
-			pkMintAuthority.publicKey,
+			pkMint.publicKey,
 			decimals,
-			pkMintAuthority.publicKey,
+			pkPayer.publicKey,
 			null,
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -82,18 +84,20 @@ const main = async () => {
 
 		const tx = new Transaction().add(
 			ixCreateAccount,
-			ixInitializePermanentDelegate,
+			ixInitializeNonTransferableMint,
 			ixInitializeMint
 		);
 
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMintAuthority],
-			undefined	// ??
+			[pkPayer, pkMint]
 		);
 
 		displayTransactionLink("Signature", sigTx, cluster);
+
+
+
 
 	} catch (e) {
 		console.error(e);

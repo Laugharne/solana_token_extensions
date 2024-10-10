@@ -67,8 +67,6 @@ Or reuse a wallet file in `./keypair` directory !
 bun run interest_bearing.ts
 ```
 
-TODO
-
 This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 
 ```bash
@@ -123,9 +121,6 @@ Solana Token Extensions (Interest Bearing)
   "type": "initializeInterestBearingConfig"
 }
 ```
-
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
-
 
 ## Interest Bearing with Token Extensions on Solana
 

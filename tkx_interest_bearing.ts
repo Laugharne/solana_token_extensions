@@ -2,30 +2,20 @@
 
 import {
 	Keypair,
-	SystemProgram,
-	Transaction,
-	sendAndConfirmTransaction,
 } from "@solana/web3.js";
 
 import {
-	ExtensionType,
 	TOKEN_2022_PROGRAM_ID,
 	amountToUiAmount,
-	createInitializeMintInstruction,
-	createInitializePermanentDelegateInstruction,
 	createInterestBearingMint,
-	getMintLen,
-	updateRateInterestBearingMint,
 } from "@solana/spl-token";
 
 import { cluster, connection } from "./config";
 
 import {
-	displayTransactionLink,
 	displayWallet,
 	readWalletFile,
 	title,
-	subTitle,
 	info,
 } from './utils';
 

@@ -106,6 +106,7 @@ export function title(text: string) {
 
 export function subTitle(text: string) {
 	const txt = text;
+	console.log("");
 	console.log(txt);
 	console.log("-".repeat(txt.length));
 	console.log("");
@@ -113,6 +114,18 @@ export function subTitle(text: string) {
 
 export function info(text: string) {
 	console.log("ℹ️ "+text);
+}
+
+export function infoPair(label: string, value: any, pad?: number) {
+
+	if( pad) {
+		//
+	} else {
+		pad = DEFAULT_PAD;
+	}
+	const padLabel = label.padEnd(pad);
+
+	console.log("ℹ️ "+padLabel+" : "+value);
 }
 
 export function warning(text: string) {

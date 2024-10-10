@@ -1,12 +1,13 @@
 // @ts-check
 
 import { cluster, connection } from "./config";
-import { createWalletFile, getAirdrop, title } from "./utils";
+import { getAirdrop, readWalletFile, title } from "./utils";
 
 const main = async () => {
 	try {
-		title("Create Payer wallet");
-		const pkPayer = await createWalletFile("payer", cluster);
+		title("Airdrop Payer wallet");
+		const pkPayer = await readWalletFile("payer", cluster);
+		if( pkPayer == null) {return;}
 		await getAirdrop( "Payer", connection, pkPayer, 2, cluster);
 		//displayWalletLink("Payer", pkPayer, cluster);
 	} catch (e) {
