@@ -134,7 +134,7 @@ In Solana, **"interest bearing tokens"** work a bit like this magical piggy bank
 With "_interest bearing tokens_", the longer you keep your tokens in an account, the more **new tokens** you earn over time, like a piggy bank giving you bonus coins just for waiting! Cool, right? 😊
 
 
-## Code
+## Code explaination
 
 ### 1. Creating an Interest-Bearing Mint with `createInterestBearingMint`
 

@@ -60,15 +60,15 @@ Here are some of the **Token Extensions** available in the SPL program on Solana
    - Makes the token owner's address immutable, preventing any future transfer of ownership.
    - Used in cases where it's important that the token account owner never changes.
 
-1. **Transfer Fee Extension** (`TransferFeeConfig`):
+5. **Transfer Fee Extension** (`TransferFeeConfig`):
    - Allows defining fees for each token transfer. These fees can be collected by the designated "_fee collector_".
    - Commonly used for applications like stablecoins or other tokens that require management fees.
 
-5. **Mint Close Authority Extension** (`MintCloseAuthority`):
+6. **Mint Close Authority Extension** (`MintCloseAuthority`):
    - Allows defining a close authority for the mint account.
    - This authority can decide to close the mint account once all tokens have been issued or under specific conditions.
 
-6. **CPI Guard Extension** (`CpiGuard`):
+7. **CPI Guard Extension** (`CpiGuard`):
    - Used to control access to cross-program invocation (_CPI_) instructions and protect certain operations from unauthorized calls.
 
 
@@ -96,6 +96,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | [Interest Bearing](./markdown/interest_bearing.md)              |
 | [Non-tranferable Tokens](./markdown/non_transferable_tokens.md) |
 | [Immutable Owner](./markdown/immutable_owner.md)                |
+| [Reallocate Token Account Sizes](./markdown/reallocate_size.md) |
 |                                                                 |
 
 

@@ -126,7 +126,7 @@ In Solana, **"_non-transferable tokens_"** are a bit like this special toy. Thes
 A "_non-transferable toke_n" is like a toy that’s **yours forever**, and **you can’t give it away** to anyone, even if you wanted to. It’s just **non-tradable**!
 
 
-## Code
+## Code explaination
 
 ### 1. **Calculate the Mint Length and Rent-Exempt Lamports**
 

@@ -10,9 +10,12 @@ import {
 import {
 	ExtensionType,
 	TOKEN_2022_PROGRAM_ID,
+	createAccount,
+	createEnableRequiredMemoTransfersInstruction,
 	createInitializeAccountInstruction,
 	createInitializeImmutableOwnerInstruction,
 	createMint,
+	createReallocateInstruction,
 	getAccountLen,
 } from "@solana/spl-token";
 
@@ -31,7 +34,7 @@ import {
 const main = async () => {
 	try {
 
-		title("Solana Token Extensions (Immutable Owner)");
+		title("Solana Token Extensions (Reallocate Token Account Sizes)");
 
 		subTitle("Get keys...");
 		const pkPayer = await readWalletFile("payer", cluster);
@@ -44,11 +47,12 @@ const main = async () => {
 		const pkOwner = Keypair.generate();
 		displayWallet("Owner", pkOwner);
 
-		const pkAccount = Keypair.generate();
-		displayWallet("Account", pkAccount);
-
 		const decimals = 0;
-		infoPair("Decimals: ", decimals);
+		infoPair("Decimals", decimals);
+
+		console.log("");
+
+		subTitle("Initialize mint");
 
 		const mint = await createMint(
 			connection,
@@ -61,50 +65,50 @@ const main = async () => {
 			TOKEN_2022_PROGRAM_ID
 		);
 
-		console.log("");
-
-		info("Fetch the minimum balance needed to exempt an account for rent");
-		const accountLen = getAccountLen([ExtensionType.ImmutableOwner]);
-		const lamports   = await connection.getMinimumBalanceForRentExemption(accountLen);
-
 		subTitle("Create account");
 
-		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkAccount.publicKey,
-			space           : accountLen,
-			lamports        : lamports,
-			programId       : TOKEN_2022_PROGRAM_ID,
-		});
-
-		subTitle("Immutable Owner Init.");
-
-		const ixInitializeImmutableOwner = createInitializeImmutableOwnerInstruction(
-			pkAccount.publicKey,
+		const account = await createAccount(
+			connection,
+			pkPayer,
+			mint,
+			pkOwner.publicKey,
+			undefined,
+			undefined,
 			TOKEN_2022_PROGRAM_ID
 		);
 
-		const ixInitializeAccount = createInitializeAccountInstruction(
-			pkAccount.publicKey,
-			mint,
-			pkOwner.publicKey,
-			TOKEN_2022_PROGRAM_ID
 
+		subTitle("Reallocation");
+
+		const extensions = [ExtensionType.MemoTransfer];
+
+		const ixReallocate = createReallocateInstruction(
+			account,
+			pkPayer.publicKey,
+			extensions,
+			pkOwner.publicKey,
+			undefined,
+			TOKEN_2022_PROGRAM_ID
+		);
+
+		const ixEnableRequiredMemoTransfer = createEnableRequiredMemoTransfersInstruction(
+			account,
+			pkOwner.publicKey,
+			[],
+			TOKEN_2022_PROGRAM_ID
 		);
 
 		subTitle("Proceed to transactions");
 
 		const tx = new Transaction().add(
-			ixCreateAccount,
-			ixInitializeImmutableOwner,
-			ixInitializeAccount
+			ixReallocate,
+			ixEnableRequiredMemoTransfer,
 		);
 
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkAccount],
-			undefined
+			[pkPayer, pkOwner]
 		);
 
 		displayTransactionLink("Signature", sigTx, cluster);

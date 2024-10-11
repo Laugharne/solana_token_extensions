@@ -134,7 +134,7 @@ But be careful! Even though this person has a key, they can't do everything. You
 The "_permanent delegate_" in Solana is like lending a special key to someone else so they can manage your tokens (toys) on your behalf for a long time, but **only** according to the rules you've set.
 
 
-## Code
+## Code explaination
 
 ### 1. Creating an Account with `SystemProgram.createAccount`
 
