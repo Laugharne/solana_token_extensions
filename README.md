@@ -97,6 +97,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | [Non-tranferable Tokens](./markdown/non_transferable_tokens.md) |
 | [Immutable Owner](./markdown/immutable_owner.md)                |
 | [Reallocate Token Account Sizes](./markdown/reallocate_size.md) |
+| [Default Account State](./markdown/default_account_state.md) |
 |                                                                 |
 
 

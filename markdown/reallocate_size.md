@@ -82,7 +82,7 @@ bun run tkx_reallocate_size.ts
 }
 ```
 
-  [Transaction 3wyzCqu3Vypein47LmqQXm3sQ917Kzp9kDWCED9yiXoXeDnfDrJoZnhR41mhhecjWqbD1KM9t2mKSN6wRBuihKpH | Solscan](https://solscan.io/tx/3wyzCqu3Vypein47LmqQXm3sQ917Kzp9kDWCED9yiXoXeDnfDrJoZnhR41mhhecjWqbD1KM9t2mKSN6wRBuihKpH?cluster=devnet)
+[Transaction 3wyzCqu3Vypein47LmqQXm3sQ917Kzp9kDWCED9yiXoXeDnfDrJoZnhR41mhhecjWqbD1KM9t2mKSN6wRBuihKpH | Solscan](https://solscan.io/tx/3wyzCqu3Vypein47LmqQXm3sQ917Kzp9kDWCED9yiXoXeDnfDrJoZnhR41mhhecjWqbD1KM9t2mKSN6wRBuihKpH?cluster=devnet)
 
 ![](2024-10-11-10-22-12.png)
 
