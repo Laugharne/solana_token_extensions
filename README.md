@@ -88,7 +88,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 **Token Extensions** on Solana provide additional flexibility for token management by allowing custom functionalities to be added without modifying the core SPL token standard. They are particularly useful for DeFi applications, NFT platforms, and other use cases requiring advanced token management.
 
 
-## Examples
+## Starters
 
 | Token Extensions                                                   |
 | ------------------------------------------------------------------ |
@@ -98,7 +98,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | 🔒 [Immutable Owner](./markdown/immutable_owner.md)                |
 | 📏 [Reallocate Token Account Sizes](./markdown/reallocate_size.md) |
 | ⚙️ [Default Account State](./markdown/default_account_state.md)    |
-| 🚧 Closing Token Mint                                              |
+| 🚧 [Closing Token Mint](./markdown/closing_token_mints.md)         |
 | 🏷️ Token Metadata                                                  |
 | 🪝 Token Transfer Hooks                                            |
 | 💸 Token Transfer Fees                                             |

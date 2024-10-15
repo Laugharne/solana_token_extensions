@@ -64,7 +64,7 @@ Or reuse a wallet file in `./keypair` directory !
 **To run:**
 
 ```bash
-bun run interest_bearing.ts
+bun run tkx_interest_bearing.ts
 ```
 
 This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
