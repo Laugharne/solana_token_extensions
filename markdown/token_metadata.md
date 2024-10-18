@@ -145,7 +145,7 @@ Proceed to transactions
   "info": {
     "authority":       "9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY",
     "metadataAddress": "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv",
-    "mint":            "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv"
+    "mint":             "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv"
   },
   "type": "initializeMetadataPointer"
 }
@@ -177,8 +177,177 @@ Token metadata on Solana can be used for a variety of purposes, such as displayi
 
 ## Code explaination
 
-TODO
 
+### 1. **Define Token Metadata**
+
+**`TokenMetadata`**: This object holds basic information about the token, such as its mint, name, symbol, URI, and additional metadata. The URI typically links to off-chain resources (like IPFS) containing images, descriptions, or other properties.
+
+```typescript
+const metadata: TokenMetadata = {
+	mint              : pkMint.publicKey,      // Public key of the mint account
+	name              : tokenName,             // Name of the token
+	symbol            : tokenSymbol,           // Symbol of the token
+	uri               : tokenUri,              // URI that links to off-chain metadata (like images or additional info)
+	additionalMetadata: [
+		["key", "value"]                       // Custom metadata as key-value pairs
+	]
+}
+```
+
+  - **`additionalMetadata`**: Stores extra fields that can be customized for this token, allowing developers to extend metadata with additional information.
+
+
+### 2. **Calculate Mint and Metadata Space, and Rent Exemption**
+
+**`getMintLen([ExtensionType.MetadataPointer])`**: This function calculates the space needed for the mint account, considering that it will use the **MetadataPointer** extension, which allows for on-chain or off-chain metadata storage.
+
+```typescript
+const mintSpace     = getMintLen([ExtensionType.MetadataPointer]);  // Calculate the space required for the mint with a MetadataPointer extension
+```
+
+- **`metadataSpace`**: This determines how much space is required to store the metadata object on-chain.
+  - **`TYPE_SIZE + LENGTH_SIZE + pack(metadata).length`**: Adds up the size of the type, length of the metadata, and the actual metadata packed in bytes.
+
+```typescript
+const metadataSpace = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;  // Calculate how much space is needed to store the metadata on-chain
+```
+
+- **`getMinimumBalanceForRentExemption`**: This function calculates how many lamports (the smallest unit of SOL) are needed to make the mint and metadata storage rent-exempt.
+
+```typescript
+const lamports      = await connection.getMinimumBalanceForRentExemption(mintSpace + metadataSpace);  // Compute the number of lamports needed for rent exemption
+```
+
+### 3. **Create Mint Account**
+
+**`SystemProgram.createAccount`**: This instruction creates the mint account with the exact space needed for the **MetadataPointer** extension. The lamports ensure the mint account will not be charged rent.
+
+```typescript
+const ixCreateAccount = SystemProgram.createAccount({
+	fromPubkey      : pkPayer.publicKey,        // The account paying for the transaction
+	newAccountPubkey: pkMint.publicKey,         // Public key of the mint account being created
+	space           : mintSpace,                // The space required for the mint account itself
+	lamports        : lamports,                 // The rent-exempt lamport amount calculated earlier
+	programId       : TOKEN_2022_PROGRAM_ID,    // Specifies that this mint uses the 2022 Token Program
+});
+```
+
+### 4. **Initialize Metadata Pointer**
+
+**`createInitializeMetadataPointerInstruction`**: Initializes the **MetadataPointer** extension for the mint. This extension allows the mint to reference metadata either stored on-chain or off-chain.
+
+```typescript
+const ixInitializeMetadataPointer = createInitializeMetadataPointerInstruction(
+	pkMint.publicKey,             // Mint account to initialize the metadata pointer
+	pkPayer.publicKey,            // Account paying for the initialization
+	pkMint.publicKey,             // Authority for metadata pointer updates
+	TOKEN_2022_PROGRAM_ID         // Token 2022 Program to support this extension
+);
+```
+
+### 5. **Initialize the Mint**
+
+**`createInitializeMintInstruction`**: This instruction sets up the mint with the specified number of decimals (2 in this case, meaning the token is divisible up to 2 decimal places).
+
+```typescript
+const decimals = 2;
+
+const ixInitializeMint = createInitializeMintInstruction(
+	pkMint.publicKey,             // Mint account to initialize
+	decimals,                     // Number of decimal places for the token (2 in this case)
+	pkPayer.publicKey,            // Mint authority: who can mint new tokens
+	null,                         // Freeze authority: no freeze authority is assigned
+	TOKEN_2022_PROGRAM_ID         // Token 2022 Program to enable extensions
+);
+```
+
+  - **Mint authority**: The account that can mint new tokens.
+  - **No freeze authority**: No account is given permission to freeze accounts holding this token.
+
+
+### 6. **Initialize Token Metadata**
+
+**`createInitializeInstruction`**: This sets up the initial metadata for the token, associating the mint with a name, symbol, and URI.
+
+```typescript
+const ixInitializeMetadata = createInitializeInstruction({
+	mint           : pkMint.publicKey,         // The mint associated with the metadata
+	metadata       : pkMint.publicKey,         // The metadata account (often the same as the mint account)
+	mintAuthority  : pkPayer.publicKey,        // Authority responsible for minting
+	name           : metadata.name,            // Name of the token
+	symbol         : metadata.symbol,          // Symbol of the token
+	uri            : metadata.uri,             // Off-chain URI that stores additional metadata (like images)
+	programId      : TOKEN_2022_PROGRAM_ID,    // Token 2022 Program to handle metadata
+	updateAuthority: pkPayer.publicKey          // Authority allowed to update metadata fields
+});
+```
+
+  - **URI**: This typically points to a JSON file stored off-chain (on IPFS, Arweave, etc.) that contains more detailed metadata.
+  - **Update Authority**: This account has permission to update metadata fields after initialization.
+
+
+### 7. **Update Metadata Field**
+
+**`createUpdateFieldInstruction`**: This allows specific fields in the metadata to be updated. In this case, the custom field in **`additionalMetadata`** is being updated.
+
+```typescript
+const ixUpdateMetadataField = createUpdateFieldInstruction({
+	metadata: pkMint.publicKey,                // The metadata account to update
+	programId: TOKEN_2022_PROGRAM_ID,          // Token 2022 Program to handle metadata
+	updateAuthority: pkPayer.publicKey,        // Authority with permission to update
+	field: metadata.additionalMetadata[0][0],  // The field to update (key)
+	value: metadata.additionalMetadata[0][1]   // The new value for the field
+});
+```
+
+  - **`field`**: The key to update.
+  - **`value`**: The new value for the key.
+
+
+### 8. **Transaction Construction and Execution**
+
+**`new Transaction().add(...)`**: This bundles all instructions into a single transaction, which will be sent to the Solana blockchain.
+
+```typescript
+const tx = new Transaction().add(
+	ixCreateAccount,                // Create the mint account
+	ixInitializeMetadataPointer,    // Initialize the metadata pointer extension
+	ixInitializeMint,               // Initialize the mint
+	ixInitializeMetadata,           // Initialize the token's metadata
+	ixUpdateMetadataField           // Update specific metadata field
+);
+```
+
+**`sendAndConfirmTransaction(...)`**: Sends the transaction and waits for confirmation that it was executed successfully.
+
+```typescript
+const sigTx = await sendAndConfirmTransaction(
+	connection,                    // Solana connection object
+	tx,                            // The transaction built above
+	[pkPayer, pkMint],             // Signers for the transaction (payer and mint account)
+	undefined                      // Confirmation options (not provided here)
+);
+```
+
+### 9. **Fetch the Metadata on the Blockchain**
+
+**`getTokenMetadata(...)`**: Fetches the token metadata from the blockchain to verify that everything was stored and updated correctly.
+
+```typescript
+const chainMetadata = await getTokenMetadata(
+	connection,                      // Solana connection object
+	pkMint.publicKey                 // Mint account's public key to fetch metadata
+);
+```
+
+### Summary
+1. **Create the Mint**: The mint account is created with the required space and extensions.
+2. **Initialize Metadata Pointer**: The mint is linked to a metadata pointer, allowing metadata to be stored on-chain or off-chain.
+3. **Initialize Mint and Metadata**: The mint is initialized with the necessary parameters (decimals, authority), and its metadata is set up (name, symbol, URI).
+4. **Update Metadata**: A specific field in the metadata is updated.
+5. **Fetch Metadata**: After execution, the metadata is fetched from the blockchain to confirm it was correctly stored.
+
+This process demonstrates how Solana's token extensions can be used to handle advanced token operations like dynamic metadata updates, on-chain/off-chain metadata pointers, and more.
 
 ## Sources
 
