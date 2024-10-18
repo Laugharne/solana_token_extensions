@@ -123,7 +123,7 @@ Alright, imagine you have an awesome toy, but this toy has a special rule: **you
 In Solana, **"_non-transferable tokens_"** are a bit like this special toy. These tokens are **locked** with their owner, which means once you have them, **you cannot transfer** or send them to someone else. They’re yours for life!
 
 ### Summary:
-A "_non-transferable toke_n" is like a toy that’s **yours forever**, and **you can’t give it away** to anyone, even if you wanted to. It’s just **non-tradable**!
+A "_non-transferable token_" is like a toy that’s **yours forever**, and **you can’t give it away** to anyone, even if you wanted to. It’s just **non-tradable**!
 
 
 ## Code explaination

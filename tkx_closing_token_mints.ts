@@ -7,12 +7,9 @@ import {
 import {
 	ExtensionType,
 	TOKEN_2022_PROGRAM_ID,
-	amountToUiAmount,
 	closeAccount,
 	createInitializeMintCloseAuthorityInstruction,
 	createInitializeMintInstruction,
-	createInterestBearingMint,
-	createMint,
 	getMintLen,
 } from "@solana/spl-token";
 
@@ -52,7 +49,6 @@ const main = async () => {
 		info("Fetch the minimum balance needed to exempt an account of rent");
 		const mintLen  = getMintLen([ExtensionType.MintCloseAuthority]); // !
 		const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
-
 
 		subTitle("Create account");
 

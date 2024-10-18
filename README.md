@@ -17,9 +17,7 @@ The idea is to have a standard base for tokens (_similar to ERC-20 on Ethereum_)
 
 ### Not just metadata !
 
-Technically, **Solana's token extensions** are not just standard tokens with additional standardized metadata. They provide **additional functionality at the program level** via the SPL Token 2022 program, adding specific behaviors and management rules through **advanced instructions and configurations**.
-
-Here’s why **token extensions** go beyond just standard metadata:
+Here’s why **token extensions** go beyond just standard metadata added to standard tokens:
 
 1. **Protocol-level programming**:
    Token extensions introduce **extra behaviors** that are directly managed by the **SPL Token 2022 program**. For instance, features like interest accrual, transfer fees, or roles such as the "_permanent delegate_" are mechanisms that are integrated within the program itself, not just static metadata.
@@ -99,7 +97,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | 📏 [Reallocate Token Account Sizes](./markdown/reallocate_size.md) |
 | ⚙️ [Default Account State](./markdown/default_account_state.md)    |
 | 🚧 [Closing Token Mint](./markdown/closing_token_mints.md)         |
-| 🏷️ Token Metadata                                                  |
+| 🏷️ [Token Metadata](./markdown/token_metadata.md)                  |
 | 🪝 Token Transfer Hooks                                            |
 | 💸 Token Transfer Fees                                             |
 
