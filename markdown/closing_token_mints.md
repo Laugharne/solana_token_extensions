@@ -156,8 +156,8 @@ const lamports = await connection.getMinimumBalanceForRentExemption(mintLen); //
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-    fromPubkey      : pkPayer.publicKey,        // The account that pays for the new mint account's creation
-    newAccountPubkey: pkMint.publicKey,         // The public key of the new mint account
+    fromPubkey      : kpPayer.publicKey,        // The account that pays for the new mint account's creation
+    newAccountPubkey: kpMint.publicKey,         // The public key of the new mint account
     space           : mintLen,                  // The amount of space needed, calculated earlier
     lamports        : lamports,                 // The rent-exempt amount needed
     programId       : TOKEN_2022_PROGRAM_ID,    // The Token 2022 Program ID to support extensions
@@ -174,12 +174,12 @@ const ixCreateAccount = SystemProgram.createAccount({
 
 ```typescript
 const ixInitializeMintCloseAuthority = createInitializeMintCloseAuthorityInstruction(
-    pkMint.publicKey,                 // The public key of the mint to be initialized
-    pkCloseAuthority.publicKey,       // The public key of the account that will have the authority to close the mint
+    kpMint.publicKey,                 // The public key of the mint to be initialized
+    kpCloseAuthority.publicKey,       // The public key of the account that will have the authority to close the mint
     TOKEN_2022_PROGRAM_ID             // Token 2022 Program ID to use new extensions
 );
 ```
-  - **`pkCloseAuthority.publicKey`**: This is the account that has the permission to close the mint account when needed.
+  - **`kpCloseAuthority.publicKey`**: This is the account that has the permission to close the mint account when needed.
 
 
 ### 4. **Initialize the Mint**
@@ -190,16 +190,16 @@ const ixInitializeMintCloseAuthority = createInitializeMintCloseAuthorityInstruc
 const decimals = 0;
 
 const ixInitializeMint = createInitializeMintInstruction(
-    pkMint.publicKey,                // The mint's public key
+    kpMint.publicKey,                // The mint's public key
     decimals,                        // The number of decimal places (0 means this is a non-divisible token, like NFTs or tickets)
-    pkMintAuthority.publicKey,       // The account that has the authority to mint tokens
-    pkMintAuthority.publicKey,       // The account that has the authority to freeze token accounts
+    kpMintAuthority.publicKey,       // The account that has the authority to mint tokens
+    kpMintAuthority.publicKey,       // The account that has the authority to freeze token accounts
     TOKEN_2022_PROGRAM_ID            // Token 2022 Program ID to enable the latest features
 );
 ```
   - **`decimals = 0`**: No decimals, meaning the token is non-divisible (often used for NFTs or fixed-amount tokens).
-  - **`pkMintAuthority.publicKey`**: This account has the authority to mint new tokens.
-  - **`pkMintAuthority.publicKey (again)`**: This account can also freeze token accounts if needed.
+  - **`kpMintAuthority.publicKey`**: This account has the authority to mint new tokens.
+  - **`kpMintAuthority.publicKey (again)`**: This account can also freeze token accounts if needed.
 
 
 ### 5. **Transaction Construction and Execution**
@@ -223,7 +223,7 @@ const tx = new Transaction().add(
 const sigTx = await sendAndConfirmTransaction(
     connection,                       // The Solana connection object
     tx,                               // The transaction we just built
-    [pkPayer, pkMint],                // Signers: the payer and the mint account's keypair
+    [kpPayer, kpMint],                // Signers: the payer and the mint account's keypair
     undefined	// ??
 );
 ```
@@ -236,17 +236,17 @@ const sigTx = await sendAndConfirmTransaction(
 ```typescript
 const sigTxClose = await closeAccount(
     connection,                         // Solana connection object
-    pkPayer,                            // The payer of the transaction fees
-    pkMint.publicKey,                   // The mint account to close
-    pkPayer.publicKey,                  // The recipient of any remaining lamports (after the mint is closed)
-    pkCloseAuthority,                   // The authority to close the mint (set earlier)
+    kpPayer,                            // The payer of the transaction fees
+    kpMint.publicKey,                   // The mint account to close
+    kpPayer.publicKey,                  // The recipient of any remaining lamports (after the mint is closed)
+    kpCloseAuthority,                   // The authority to close the mint (set earlier)
     [],                                 // Optional multisig signer (empty in this case)
     undefined,                          // Optional memo field (not used here)
     TOKEN_2022_PROGRAM_ID               // Token 2022 Program ID
 );
 ```
-  - **`pkCloseAuthority`**: Only the account with close authority (defined earlier) can close the mint.
-  - **`pkPayer.publicKey`**: Any leftover lamports (SOL) in the mint account are transferred to the payer after closing the mint.
+  - **`kpCloseAuthority`**: Only the account with close authority (defined earlier) can close the mint.
+  - **`kpPayer.publicKey`**: Any leftover lamports (SOL) in the mint account are transferred to the payer after closing the mint.
 
 
 ### Summary

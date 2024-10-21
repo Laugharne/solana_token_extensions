@@ -32,15 +32,15 @@ const main = async () => {
 		title("Solana Token Extensions (Permanent Delegate)");
 
 		info("Get keys...")
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const kpMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", kpMintAuthority);
 
-		const pkPermanentDelegate = Keypair.generate();
-		displayWallet("Delegate", pkPermanentDelegate);
+		const kpPermanentDelegate = Keypair.generate();
+		displayWallet("Delegate", kpPermanentDelegate);
 		console.log("");
 
 		info("Fetch the minimum balance needed to exempt an account of rent");
@@ -50,8 +50,8 @@ const main = async () => {
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMintAuthority.publicKey,
+			fromPubkey      : kpPayer.publicKey,
+			newAccountPubkey: kpMintAuthority.publicKey,
 			space           : mintLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
@@ -60,8 +60,8 @@ const main = async () => {
 		subTitle("Permanent delegate Init.");
 
 		const ixInitializePermanentDelegate = createInitializePermanentDelegateInstruction(
-			pkMintAuthority.publicKey,
-			pkPermanentDelegate.publicKey,
+			kpMintAuthority.publicKey,
+			kpPermanentDelegate.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
@@ -71,9 +71,9 @@ const main = async () => {
 		info("Decimals: "+decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
-			pkMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
 			decimals,
-			pkMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
 			null,
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -89,7 +89,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMintAuthority],
+			[kpPayer, kpMintAuthority],
 			undefined	// ??
 		);
 

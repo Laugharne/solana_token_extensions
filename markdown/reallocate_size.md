@@ -151,9 +151,9 @@ const decimals = 0;
 
 const mint = await createMint(
 	connection,                // Solana connection object
-	pkPayer,                   // Payer account that funds the transaction
-	pkMintAuthority.publicKey, // Mint authority (who can mint tokens)
-	pkMintAuthority.publicKey, // Freeze authority (who can freeze accounts, here it's the same as the mint authority)
+	kpPayer,                   // Payer account that funds the transaction
+	kpMintAuthority.publicKey, // Mint authority (who can mint tokens)
+	kpMintAuthority.publicKey, // Freeze authority (who can freeze accounts, here it's the same as the mint authority)
 	decimals,                  // Number of decimal places (0 means whole units, like NFTs or tickets)
 	undefined,                 // Optional multisig mint authority (not used here)
 	undefined,                 // Optional multisig freeze authority (not used here)
@@ -162,7 +162,7 @@ const mint = await createMint(
 ```
 
   - **`decimals = 0`**: The token created will be non-divisible (e.g., you can't own 0.5 of the token). This is often the case for non-fungible tokens (NFTs) or items like tickets, where partial ownership doesn’t make sense.
-  - **`pkMintAuthority.publicKey`**: The account with the authority to mint new tokens.
+  - **`kpMintAuthority.publicKey`**: The account with the authority to mint new tokens.
   - **`TOKEN_2022_PROGRAM_ID`**: Ensures the mint can leverage the newer token extensions provided by the 2022 Token program.
 
 
@@ -173,9 +173,9 @@ const mint = await createMint(
 ```typescript
 const account = await createAccount(
 	connection,            // Solana connection object
-	pkPayer,               // Payer account funding the creation of the token account
+	kpPayer,               // Payer account funding the creation of the token account
 	mint,                  // The mint associated with this account (created in the previous step)
-	pkOwner.publicKey,     // The owner of the new token account
+	kpOwner.publicKey,     // The owner of the new token account
 	undefined,             // Optional multisig signer (not used here)
 	undefined,             // Optional programId (defaults to SPL Token program)
 	TOKEN_2022_PROGRAM_ID  // Token 2022 program ID to support token extensions
@@ -183,7 +183,7 @@ const account = await createAccount(
 ```
 
   - **`mint`**: The token mint that this account is associated with. This account can only hold tokens from this specific mint.
-  - **`pkOwner.publicKey`**: The owner of the token account who will manage the tokens.
+  - **`kpOwner.publicKey`**: The owner of the token account who will manage the tokens.
   - **`TOKEN_2022_PROGRAM_ID`**: Ensures this account can utilize the latest token extensions, such as the **Memo Transfer** extension described below.
 
 
@@ -196,9 +196,9 @@ const extensions = [ExtensionType.MemoTransfer];  // Specify the Memo Transfer e
 
 const ixReallocate = createReallocateInstruction(
 	account,               // Token account to reallocate
-	pkPayer.publicKey,     // Payer public key for transaction fees
+	kpPayer.publicKey,     // Payer public key for transaction fees
 	extensions,            // Extensions to enable (Memo Transfer)
-	pkOwner.publicKey,     // Owner of the token account
+	kpOwner.publicKey,     // Owner of the token account
 	undefined,             // Optional multisig signer (not used here)
 	TOKEN_2022_PROGRAM_ID  // Token 2022 program ID for token extensions
 );
@@ -214,7 +214,7 @@ const ixReallocate = createReallocateInstruction(
 ```typescript
 const ixEnableRequiredMemoTransfer = createEnableRequiredMemoTransfersInstruction(
 	account,                 // Token account where memo transfers are required
-	pkOwner.publicKey,       // Owner of the account
+	kpOwner.publicKey,       // Owner of the account
 	[],                      // Optional multisig signer array (empty in this case)
 	TOKEN_2022_PROGRAM_ID    // Token 2022 program ID
 );
@@ -238,13 +238,13 @@ const tx = new Transaction().add(
 ```
 
 **`sendAndConfirmTransaction`**: This function sends the transaction to the Solana blockchain and waits for confirmation.
-  - **Signers**: The transaction needs to be signed by both the payer (`pkPayer`) and the owner of the token account (`pkOwner`).
+  - **Signers**: The transaction needs to be signed by both the payer (`kpPayer`) and the owner of the token account (`kpOwner`).
 
 ```typescript
 const sigTx = await sendAndConfirmTransaction(
 	connection,             // Solana connection object
 	tx,                     // The transaction containing the instructions
-	[pkPayer, pkOwner]      // Signers (payer for fees, and account owner)
+	[kpPayer,kpOwner]      // Signers (payer for fees, and account owner)
 );
 ```
 

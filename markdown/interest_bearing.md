@@ -138,19 +138,19 @@ With "_interest bearing tokens_", the longer you keep your tokens in an account,
 
 ### 1. Creating an Interest-Bearing Mint with `createInterestBearingMint`
 
-This code creates an **interest-bearing mint**. A mint is essentially a smart contract that can create new tokens. In this case, the mint produces tokens that can **earn interest over time** based on a specific rate controlled by the `pkRateAuthority`. The `decimals` parameter specifies how many decimal places the token can have, which is important for defining its smallest unit.
+This code creates an **interest-bearing mint**. A mint is essentially a smart contract that can create new tokens. In this case, the mint produces tokens that can **earn interest over time** based on a specific rate controlled by the `kpRateAuthority`. The `decimals` parameter specifies how many decimal places the token can have, which is important for defining its smallest unit.
 
 ```typescript
 const mint = await createInterestBearingMint(
     connection,                // The Solana connection object to interact with the blockchain
-    pkPayer,                   // Public key of the paying account (pays for rent and fees)
-    pkMintAuthority.publicKey, // Public key of the mint authority (controls the minting of tokens)
-    pkMintAuthority.publicKey, // Public key of the freeze authority
+    kpPayer,                   // Public key of the paying account (pays for rent and fees)
+    kpMintAuthority.publicKey, // Public key of the mint authority (controls the minting of tokens)
+    kpMintAuthority.publicKey, // Public key of the freeze authority
                                // (can optionally freeze accounts, here set to the same as mint authority)
-    pkRateAuthority.publicKey, // Public key of the rate authority (controls the interest rate of the tokens)
+    kpRateAuthority.publicKey, // Public key of the rate authority (controls the interest rate of the tokens)
     rate,                      // The interest rate that the tokens will earn over time
     decimals,                  // Number of decimal places for the tokens
-    pkMint,                    // Public key of the mint account that will be created
+    kpMint,                    // Public key of the mint account that will be created
     undefined,                 // Optional parameter for the freeze authority (left undefined here)
     TOKEN_2022_PROGRAM_ID      // The program ID for the Token 2022 program
 );
@@ -167,7 +167,7 @@ This block of code uses `setInterval` to **check the account balance** and **dis
 setInterval(async () => {
     const uiAmount = await amountToUiAmount(
         connection,           // The Solana connection object
-        pkPayer,              // Public key of the paying account (the account holding the tokens)
+        kpPayer,              // Public key of the paying account (the account holding the tokens)
         mint,                 // The interest-bearing mint created earlier
         accountBalance,       // The balance of tokens in the account (in raw token units)
         TOKEN_2022_PROGRAM_ID // The program ID for the Token 2022 program

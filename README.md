@@ -98,8 +98,8 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | ⚙️ [Default Account State](./markdown/default_account_state.md)    |
 | 🚧 [Closing Token Mint](./markdown/closing_token_mints.md)         |
 | 🏷️ [Token Metadata](./markdown/token_metadata.md)                  |
-| 🪝 Token Transfer Hooks                                            |
-| 💸 Token Transfer Fees                                             |
+| 🪝 [Token Transfer Hooks](./markdown/token_transfer_hooks.md)      |
+| 💸 [Token Transfer Fees](./markdown/token_transfer_fees.md)        |
 
 
 ## Source

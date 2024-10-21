@@ -37,12 +37,12 @@ const main = async () => {
 		title("Solana Token Extensions (Non-Transferable Tokens)");
 
 		subTitle("Get keys...");
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMint = Keypair.generate();
-		displayWallet("Mint", pkMint);
+		const kpMint = Keypair.generate();
+		displayWallet("Mint", kpMint);
 
 		console.log("");
 
@@ -53,8 +53,8 @@ const main = async () => {
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMint.publicKey,
+			fromPubkey      : kpPayer.publicKey,
+			newAccountPubkey: kpMint.publicKey,
 			space           : mintLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
@@ -63,7 +63,7 @@ const main = async () => {
 		subTitle("Non-Transferable Token Init.");
 
 		const ixInitializeNonTransferableMint = createInitializeNonTransferableMintInstruction(
-			pkMint.publicKey,
+			kpMint.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
@@ -73,9 +73,9 @@ const main = async () => {
 		infoPair("Decimals", decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
-			pkMint.publicKey,
+			kpMint.publicKey,
 			decimals,
-			pkPayer.publicKey,
+			kpPayer.publicKey,
 			null,
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -91,7 +91,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMint]
+			[kpPayer, kpMint]
 		);
 
 		displayTransactionLink("Signature", sigTx, cluster);

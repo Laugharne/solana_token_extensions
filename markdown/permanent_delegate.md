@@ -138,12 +138,12 @@ The "_permanent delegate_" in Solana is like lending a special key to someone el
 
 ### 1. Creating an Account with `SystemProgram.createAccount`
 
-This code creates a new account on Solana. The payer (`pkPayer`) pays the rent for this new account, which will be managed by the **Token 2022** program.
+This code creates a new account on Solana. The payer (`kpPayer`) pays the rent for this new account, which will be managed by the **Token 2022** program.
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-	fromPubkey      : pkPayer.publicKey,         // Public key of the paying account
-	newAccountPubkey: pkMintAuthority.publicKey, // Public key of the newly created account for the mint authority
+	fromPubkey      : kpPayer.publicKey,         // Public key of the paying account
+	newAccountPubkey: kpMintAuthority.publicKey, // Public key of the newly created account for the mint authority
 	space           : mintLen,                   // Space reserved for this account (in bytes)
 	lamports        : lamports,                  // Number of lamports (Solana) sent to cover the rent for the account
 	programId       : TOKEN_2022_PROGRAM_ID,     // Program ID that will manage this account (in this case, the Token 2022 program)
@@ -153,12 +153,12 @@ const ixCreateAccount = SystemProgram.createAccount({
 
 ### 2. Initializing a "Permanent Delegate" with `createInitializePermanentDelegateInstruction`
 
-This instruction initializes a **permanent delegate**. The delegate (`pkPermanentDelegate`) is given the authority to manage certain actions on the token account, as defined by the program, even permanently.
+This instruction initializes a **permanent delegate**. The delegate (`kpPermanentDelegate`) is given the authority to manage certain actions on the token account, as defined by the program, even permanently.
 
 ```typescript
 const ixInitializePermanentDelegate = createInitializePermanentDelegateInstruction(
-	pkMintAuthority.publicKey,     // Public key of the mint authority
-	pkPermanentDelegate.publicKey, // Public key of the permanent delegate
+	kpMintAuthority.publicKey,     // Public key of the mint authority
+	kpPermanentDelegate.publicKey, // Public key of the permanent delegate
 	TOKEN_2022_PROGRAM_ID          // The program ID for the Token 2022 program
 );
 ```
@@ -166,13 +166,13 @@ const ixInitializePermanentDelegate = createInitializePermanentDelegateInstructi
 
 ### 3. Initializing the Mint with `createInitializeMintInstruction`
 
-This instruction initializes a **mint** for the token, specifying the number of decimals for the token’s value and assigning the mint authority (`pkMintAuthority`).
+This instruction initializes a **mint** for the token, specifying the number of decimals for the token’s value and assigning the mint authority (`kpMintAuthority`).
 
 ```typescript
 const ixInitializeMint = createInitializeMintInstruction(
-	pkMintAuthority.publicKey, // Public key of the mint authority
+	kpMintAuthority.publicKey, // Public key of the mint authority
 	decimals,                  // Number of decimal places for the tokens
-	pkMintAuthority.publicKey, // Public key of the mint authority
+	kpMintAuthority.publicKey, // Public key of the mint authority
 	null,                      // Optional freeze authority, set to null in this case
 	TOKEN_2022_PROGRAM_ID      // Program ID for the Token 2022 program
 );
@@ -193,7 +193,7 @@ const tx = new Transaction().add(
 const sigTx = await sendAndConfirmTransaction(
 	connection,                 // The Solana connection object
 	tx,                         // The transaction object
-	[pkPayer, pkMintAuthority], // Signers for the transaction
+	[kpPayer, kpMintAuthority], // Signers for the transaction
 	undefined                   // Optional settings, left undefined here
 );
 ```

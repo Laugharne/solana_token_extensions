@@ -144,16 +144,16 @@ const lamports = await connection.getMinimumBalanceForRentExemption(mintLen); //
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-	fromPubkey      : pkPayer.publicKey,     // Account that pays for the creation of the mint
-	newAccountPubkey: pkMint.publicKey,      // The new mint account's public key
+	fromPubkey      : kpPayer.publicKey,     // Account that pays for the creation of the mint
+	newAccountPubkey: kpMint.publicKey,      // The new mint account's public key
 	space           : mintLen,               // The size of the account (calculated above)
 	lamports        : lamports,              // Amount of lamports needed for rent-exemption
 	programId       : TOKEN_2022_PROGRAM_ID, // The SPL Token 2022 program ID
 });
 ```
 
-- **`fromPubkey`**: The account (`pkPayer`) that will fund the creation of the new mint account.
-- **`newAccountPubkey`**: The public key of the new mint account (`pkMint`).
+- **`fromPubkey`**: The account (`kpPayer`) that will fund the creation of the new mint account.
+- **`newAccountPubkey`**: The public key of the new mint account (`kpMint`).
 - **`space`**: The size of the mint account, determined by the presence of extensions.
 - **`lamports`**: The amount needed to make the account rent-exempt, calculated previously.
 - **`programId`**: Specifies that this account will be managed by the **SPL Token 2022 program**, which allows using token extensions.
@@ -165,11 +165,11 @@ const ixCreateAccount = SystemProgram.createAccount({
 
 ```typescript
 const ixInitializeNonTransferableMint = createInitializeNonTransferableMintInstruction(
-	pkMint.publicKey,     // The mint account being initialized
+	kpMint.publicKey,     // The mint account being initialized
 	TOKEN_2022_PROGRAM_ID // Token 2022 program ID
 );
 ```
-- **`pkMint.publicKey`**: The mint account that is being initialized with this property.
+- **`kpMint.publicKey`**: The mint account that is being initialized with this property.
 - **`TOKEN_2022_PROGRAM_ID`**: This is required since the non-transferable extension is only available in the SPL Token 2022 program.
 
 
@@ -181,15 +181,15 @@ const ixInitializeNonTransferableMint = createInitializeNonTransferableMintInstr
 const decimals = 9; // Set token decimals (e.g., 1 token = 1 billion smallest units)
 
 const ixInitializeMint = createInitializeMintInstruction(
-	pkMint.publicKey,      // The mint account being initialized
+	kpMint.publicKey,      // The mint account being initialized
 	decimals,              // Number of decimal places (for fractional tokens)
-	pkPayer.publicKey,     // The mint authority (who can mint new tokens)
+	kpPayer.publicKey,     // The mint authority (who can mint new tokens)
 	null,                  // Freeze authority is set to null (optional)
 	TOKEN_2022_PROGRAM_ID  // Token 2022 program ID
 );
 ```
-- **`pkMint.publicKey`**: The mint account being initialized.
-- **`pkPayer.publicKey`**: The authority that will have permission to mint new tokens.
+- **`kpMint.publicKey`**: The mint account being initialized.
+- **`kpPayer.publicKey`**: The authority that will have permission to mint new tokens.
 - **`null`**: The freeze authority is not set here, meaning no account will be able to freeze token accounts for this mint.
 - **`TOKEN_2022_PROGRAM_ID`**: The Token 2022 program is required because we are using extensions, such as non-transferable tokens.
 
@@ -212,11 +212,11 @@ const tx = new Transaction().add(
 const sigTx = await sendAndConfirmTransaction(
 	connection,       // Solana connection object
 	tx,               // The transaction we built
-	[pkPayer, pkMint] // Signers (payer and the mint account)
+	[kpPayer, kpMint] // Signers (payer and the mint account)
 );
 ```
 
-**`[pkPayer, pkMint]`**: These are the signers required for the transaction. The payer (`pkPayer`) funds the transaction, while the mint account (`pkMint`) needs to be signed because it is being initialized.
+**`[kpPayer, kpMint]`**: These are the signers required for the transaction. The payer (`kpPayer`) funds the transaction, while the mint account (`kpMint`) needs to be signed because it is being initialized.
 
 
 ### Summary

@@ -34,27 +34,27 @@ const main = async () => {
 		title("Solana Token Extensions (Immutable Owner)");
 
 		subTitle("Get keys...");
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const kpMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", kpMintAuthority);
 
-		const pkOwner = Keypair.generate();
-		displayWallet("Owner", pkOwner);
+		constkpOwner = Keypair.generate();
+		displayWallet("Owner",kpOwner);
 
-		const pkAccount = Keypair.generate();
-		displayWallet("Account", pkAccount);
+		const kpAccount = Keypair.generate();
+		displayWallet("Account", kpAccount);
 
 		const decimals = 0;
 		infoPair("Decimals: ", decimals);
 
 		const mint = await createMint(
 			connection,
-			pkPayer,
-			pkMintAuthority.publicKey,
-			pkMintAuthority.publicKey,
+			kpPayer,
+			kpMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
 			decimals,
 			undefined,
 			undefined,
@@ -70,8 +70,8 @@ const main = async () => {
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkAccount.publicKey,
+			fromPubkey      : kpPayer.publicKey,
+			newAccountPubkey: kpAccount.publicKey,
 			space           : accountLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
@@ -80,14 +80,14 @@ const main = async () => {
 		subTitle("Immutable Owner Init.");
 
 		const ixInitializeImmutableOwner = createInitializeImmutableOwnerInstruction(
-			pkAccount.publicKey,
+			kpAccount.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
 		const ixInitializeAccount = createInitializeAccountInstruction(
-			pkAccount.publicKey,
+			kpAccount.publicKey,
 			mint,
-			pkOwner.publicKey,
+			kpOwner.publicKey,
 			TOKEN_2022_PROGRAM_ID
 
 		);
@@ -103,7 +103,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkAccount],
+			[kpPayer, kpAccount],
 			undefined
 		);
 

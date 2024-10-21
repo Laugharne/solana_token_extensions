@@ -37,15 +37,15 @@ const main = async () => {
 		title("Solana Token Extensions (Reallocate Token Account Sizes)");
 
 		subTitle("Get keys...");
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const kpMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", kpMintAuthority);
 
-		const pkOwner = Keypair.generate();
-		displayWallet("Owner", pkOwner);
+		const kpOwner = Keypair.generate();
+		displayWallet("Owner",kpOwner);
 
 		const decimals = 0;
 		infoPair("Decimals", decimals);
@@ -56,9 +56,9 @@ const main = async () => {
 
 		const mint = await createMint(
 			connection,
-			pkPayer,
-			pkMintAuthority.publicKey,
-			pkMintAuthority.publicKey,
+			kpPayer,
+			kpMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
 			decimals,
 			undefined,
 			undefined,
@@ -69,9 +69,9 @@ const main = async () => {
 
 		const account = await createAccount(
 			connection,
-			pkPayer,
+			kpPayer,
 			mint,
-			pkOwner.publicKey,
+			kpOwner.publicKey,
 			undefined,
 			undefined,
 			TOKEN_2022_PROGRAM_ID
@@ -84,16 +84,16 @@ const main = async () => {
 
 		const ixReallocate = createReallocateInstruction(
 			account,
-			pkPayer.publicKey,
+			kpPayer.publicKey,
 			extensions,
-			pkOwner.publicKey,
+			kpOwner.publicKey,
 			undefined,
 			TOKEN_2022_PROGRAM_ID
 		);
 
 		const ixEnableRequiredMemoTransfer = createEnableRequiredMemoTransfersInstruction(
 			account,
-			pkOwner.publicKey,
+			kpOwner.publicKey,
 			[],
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -108,7 +108,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkOwner]
+			[kpPayer,kpOwner]
 		);
 
 		displayTransactionLink("Signature", sigTx, cluster);

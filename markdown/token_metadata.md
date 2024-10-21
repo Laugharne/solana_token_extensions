@@ -143,11 +143,26 @@ Proceed to transactions
 ```json
 {
   "info": {
-    "authority":       "9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY",
-    "metadataAddress": "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv",
-    "mint":             "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv"
+    "metadata"       : "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv",
+    "mint"           : "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv",
+    "mintAuthority"  : "9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY",
+    "name"           : "Test Metadata Token",
+    "symbol"         : "Test",
+    "updateAuthority": "9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY",
+    "uri"            : "https://laugharne.github.io/logo.png"
   },
-  "type": "initializeMetadataPointer"
+  "type": "initializeTokenMetadata"
+}
+```
+```json
+{
+  "info": {
+    "field"          : "key",
+    "metadata"       : "A18qB7ZArjefRB46J77v8P7ud9Mgsxfr68dJikTFXPDv",
+    "updateAuthority": "9kvbQWEtgb7PDF14ueWru74WUjVNGACGerAsRpoiPbzY",
+    "value"          : "value"
+  },
+  "type": "updateTokenMetadataField"
 }
 ```
 
@@ -184,7 +199,7 @@ Token metadata on Solana can be used for a variety of purposes, such as displayi
 
 ```typescript
 const metadata: TokenMetadata = {
-	mint              : pkMint.publicKey,      // Public key of the mint account
+	mint              : kpMint.publicKey,      // Public key of the mint account
 	name              : tokenName,             // Name of the token
 	symbol            : tokenSymbol,           // Symbol of the token
 	uri               : tokenUri,              // URI that links to off-chain metadata (like images or additional info)
@@ -224,8 +239,8 @@ const lamports      = await connection.getMinimumBalanceForRentExemption(mintSpa
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-	fromPubkey      : pkPayer.publicKey,        // The account paying for the transaction
-	newAccountPubkey: pkMint.publicKey,         // Public key of the mint account being created
+	fromPubkey      : kpPayer.publicKey,        // The account paying for the transaction
+	newAccountPubkey: kpMint.publicKey,         // Public key of the mint account being created
 	space           : mintSpace,                // The space required for the mint account itself
 	lamports        : lamports,                 // The rent-exempt lamport amount calculated earlier
 	programId       : TOKEN_2022_PROGRAM_ID,    // Specifies that this mint uses the 2022 Token Program
@@ -238,9 +253,9 @@ const ixCreateAccount = SystemProgram.createAccount({
 
 ```typescript
 const ixInitializeMetadataPointer = createInitializeMetadataPointerInstruction(
-	pkMint.publicKey,             // Mint account to initialize the metadata pointer
-	pkPayer.publicKey,            // Account paying for the initialization
-	pkMint.publicKey,             // Authority for metadata pointer updates
+	kpMint.publicKey,             // Mint account to initialize the metadata pointer
+	kpPayer.publicKey,            // Account paying for the initialization
+	kpMint.publicKey,             // Authority for metadata pointer updates
 	TOKEN_2022_PROGRAM_ID         // Token 2022 Program to support this extension
 );
 ```
@@ -253,9 +268,9 @@ const ixInitializeMetadataPointer = createInitializeMetadataPointerInstruction(
 const decimals = 2;
 
 const ixInitializeMint = createInitializeMintInstruction(
-	pkMint.publicKey,             // Mint account to initialize
+	kpMint.publicKey,             // Mint account to initialize
 	decimals,                     // Number of decimal places for the token (2 in this case)
-	pkPayer.publicKey,            // Mint authority: who can mint new tokens
+	kpPayer.publicKey,            // Mint authority: who can mint new tokens
 	null,                         // Freeze authority: no freeze authority is assigned
 	TOKEN_2022_PROGRAM_ID         // Token 2022 Program to enable extensions
 );
@@ -271,14 +286,14 @@ const ixInitializeMint = createInitializeMintInstruction(
 
 ```typescript
 const ixInitializeMetadata = createInitializeInstruction({
-	mint           : pkMint.publicKey,         // The mint associated with the metadata
-	metadata       : pkMint.publicKey,         // The metadata account (often the same as the mint account)
-	mintAuthority  : pkPayer.publicKey,        // Authority responsible for minting
+	mint           : kpMint.publicKey,         // The mint associated with the metadata
+	metadata       : kpMint.publicKey,         // The metadata account (often the same as the mint account)
+	mintAuthority  : kpPayer.publicKey,        // Authority responsible for minting
 	name           : metadata.name,            // Name of the token
 	symbol         : metadata.symbol,          // Symbol of the token
 	uri            : metadata.uri,             // Off-chain URI that stores additional metadata (like images)
 	programId      : TOKEN_2022_PROGRAM_ID,    // Token 2022 Program to handle metadata
-	updateAuthority: pkPayer.publicKey          // Authority allowed to update metadata fields
+	updateAuthority: kpPayer.publicKey          // Authority allowed to update metadata fields
 });
 ```
 
@@ -292,9 +307,9 @@ const ixInitializeMetadata = createInitializeInstruction({
 
 ```typescript
 const ixUpdateMetadataField = createUpdateFieldInstruction({
-	metadata: pkMint.publicKey,                // The metadata account to update
+	metadata: kpMint.publicKey,                // The metadata account to update
 	programId: TOKEN_2022_PROGRAM_ID,          // Token 2022 Program to handle metadata
-	updateAuthority: pkPayer.publicKey,        // Authority with permission to update
+	updateAuthority: kpPayer.publicKey,        // Authority with permission to update
 	field: metadata.additionalMetadata[0][0],  // The field to update (key)
 	value: metadata.additionalMetadata[0][1]   // The new value for the field
 });
@@ -324,7 +339,7 @@ const tx = new Transaction().add(
 const sigTx = await sendAndConfirmTransaction(
 	connection,                    // Solana connection object
 	tx,                            // The transaction built above
-	[pkPayer, pkMint],             // Signers for the transaction (payer and mint account)
+	[kpPayer, kpMint],             // Signers for the transaction (payer and mint account)
 	undefined                      // Confirmation options (not provided here)
 );
 ```
@@ -336,7 +351,7 @@ const sigTx = await sendAndConfirmTransaction(
 ```typescript
 const chainMetadata = await getTokenMetadata(
 	connection,                      // Solana connection object
-	pkMint.publicKey                 // Mint account's public key to fetch metadata
+	kpMint.publicKey                 // Mint account's public key to fetch metadata
 );
 ```
 

@@ -39,12 +39,12 @@ const main = async () => {
 		title("Solana Token Extensions (Token Metadata)");
 
 		info("Get keys...")
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMint = Keypair.generate();
-		displayWallet("Mint", pkMint);
+		const kpMint = Keypair.generate();
+		displayWallet("Mint", kpMint);
 
 		const tokenName   = ""+process.env.TOKEN_NAME;
 		const tokenSymbol = ""+process.env.TOKEN_SYMBOL;
@@ -53,7 +53,7 @@ const main = async () => {
 		subTitle("Build Metadata");
 
 		const metadata: TokenMetadata = {
-			mint              : pkMint.publicKey,
+			mint              : kpMint.publicKey,
 			name              : tokenName,
 			symbol            : tokenSymbol,
 			uri               : tokenUri,
@@ -75,8 +75,8 @@ const main = async () => {
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMint.publicKey,
+			fromPubkey      : kpPayer.publicKey,
+			newAccountPubkey: kpMint.publicKey,
 			space           : mintSpace, // exact amoint of space for the mint ITSELF !
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
@@ -85,9 +85,9 @@ const main = async () => {
 		subTitle("Metadata Pointer Init.");
 
 		const ixInitializeMetadataPointer = createInitializeMetadataPointerInstruction(
-			pkMint.publicKey,
-			pkPayer.publicKey,
-			pkMint.publicKey,
+			kpMint.publicKey,
+			kpPayer.publicKey,
+			kpMint.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
@@ -97,9 +97,9 @@ const main = async () => {
 		infoPair("Decimals", decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
-			pkMint.publicKey,
+			kpMint.publicKey,
 			decimals,
-			pkPayer.publicKey,
+			kpPayer.publicKey,
 			null,
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -107,21 +107,21 @@ const main = async () => {
 		subTitle("Metadata Init.");
 
 		const ixInitializeMetadata = createInitializeInstruction({
-			mint           : pkMint.publicKey,
-			metadata       : pkMint.publicKey,
-			mintAuthority  : pkPayer.publicKey,
+			mint           : kpMint.publicKey,
+			metadata       : kpMint.publicKey,
+			mintAuthority  : kpPayer.publicKey,
 			name           : metadata.name,
 			symbol         : metadata.symbol,
 			uri            : metadata.uri,
 			programId      : TOKEN_2022_PROGRAM_ID,
-			updateAuthority: pkPayer.publicKey
+			updateAuthority: kpPayer.publicKey
 		});
 
 		// https://youtu.be/l7EyQUlNAdw?list=PLilwLeBwGuK6imBuGLSLmzMEyj6yVHGDO&t=865
 		const ixUpdateMetadataField = createUpdateFieldInstruction({
-			metadata: pkMint.publicKey,
+			metadata: kpMint.publicKey,
 			programId: TOKEN_2022_PROGRAM_ID,
-			updateAuthority: pkPayer.publicKey,
+			updateAuthority: kpPayer.publicKey,
 			field: metadata.additionalMetadata[0][0],
 			value: metadata.additionalMetadata[0][1]
 		});
@@ -141,7 +141,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMint],
+			[kpPayer, kpMint],
 			undefined	// ??
 		);
 
@@ -149,7 +149,7 @@ const main = async () => {
 
 		const chainMetadata = await getTokenMetadata(
 			connection,
-			pkMint.publicKey
+			kpMint.publicKey
 		);
 
 		console.log("");

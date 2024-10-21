@@ -25,18 +25,18 @@ const main = async () => {
 		title("Solana Token Extensions (Interest Bearing)");
 
 		info("Get keys...")
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const kpMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", kpMintAuthority);
 
-		const pkRateAuthority = Keypair.generate();
-		displayWallet("Rate auth.", pkRateAuthority);
+		const kpRateAuthority = Keypair.generate();
+		displayWallet("Rate auth.", kpRateAuthority);
 
-		const pkMint = Keypair.generate();
-		displayWallet("Mint	", pkMint);
+		const kpMint = Keypair.generate();
+		displayWallet("Mint	", kpMint);
 
 		console.log("");
 
@@ -48,13 +48,13 @@ const main = async () => {
 
 		const mint = await createInterestBearingMint(
 			connection,
-			pkPayer,
-			pkMintAuthority.publicKey,
-			pkMintAuthority.publicKey,
-			pkRateAuthority.publicKey,
+			kpPayer,
+			kpMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
+			kpRateAuthority.publicKey,
 			rate,
 			decimals,
-			pkMint,
+			kpMint,
 			undefined,
 			TOKEN_2022_PROGRAM_ID
 		);
@@ -69,7 +69,7 @@ const main = async () => {
 		setInterval(async () => {
 			const uiAmount = await amountToUiAmount(
 				connection,
-				pkPayer,
+				kpPayer,
 				mint,
 				accountBalance,
 				TOKEN_2022_PROGRAM_ID
@@ -81,9 +81,9 @@ const main = async () => {
 		// const updateRate = 50;
 		// const tx = await updateRateInterestBearingMint(
 		// 	connection,
-		// 	pkPayer,
+		// 	kpPayer,
 		// 	mint,
-		// 	pkRateAuthority,
+		// 	kpRateAuthority,
 		// 	updateRate,
 		// 	[],
 		// 	undefined,

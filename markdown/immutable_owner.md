@@ -128,9 +128,9 @@ const decimals = 0;
 
 const mint = await createMint(
 	connection,                      // Solana connection object
-	pkPayer,                         // Payer account that funds the transaction
-	pkMintAuthority.publicKey,       // Mint authority (who can mint tokens)
-	pkMintAuthority.publicKey,       // Freeze authority (who can freeze accounts, set to same as mint authority here)
+	kpPayer,                         // Payer account that funds the transaction
+	kpMintAuthority.publicKey,       // Mint authority (who can mint tokens)
+	kpMintAuthority.publicKey,       // Freeze authority (who can freeze accounts, set to same as mint authority here)
 	decimals,                        // Number of decimal places (0 means no fractional tokens, like whole units)
 	undefined,                       // Optional argument for multisig mint authority (not used here)
 	undefined,                       // Optional argument for multisig freeze authority (not used here)
@@ -138,7 +138,7 @@ const mint = await createMint(
 );
 ```
 - **`decimals`**: By setting `decimals = 0`, the token is non-divisible, meaning the smallest unit of the token is a whole number (like 1, 2, 3 tokens). This is often used for tokens representing items like NFTs or tickets.
-- **`pkMintAuthority.publicKey`**: The account that has the authority to mint new tokens. Here, the mint and freeze authority are set to the same account (`pkMintAuthority`), meaning this account can both mint and freeze tokens.
+- **`kpMintAuthority.publicKey`**: The account that has the authority to mint new tokens. Here, the mint and freeze authority are set to the same account (`kpMintAuthority`), meaning this account can both mint and freeze tokens.
 - **`TOKEN_2022_PROGRAM_ID`**: This program ID ensures that the token mint is compatible with token extensions like **Immutable Owner**.
 
 
@@ -156,8 +156,8 @@ const lamports   = await connection.getMinimumBalanceForRentExemption(accountLen
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-	fromPubkey      : pkPayer.publicKey,   // The account funding the creation of the new token account
-	newAccountPubkey: pkAccount.publicKey, // The public key of the new token account
+	fromPubkey      : kpPayer.publicKey,   // The account funding the creation of the new token account
+	newAccountPubkey: kpAccount.publicKey, // The public key of the new token account
 	space           : accountLen,          // The space required for this account (calculated above)
 	lamports        : lamports,            // Lamports needed for rent-exemption
 	programId       : TOKEN_2022_PROGRAM_ID // This account will use the SPL Token 2022 program
@@ -171,7 +171,7 @@ const ixCreateAccount = SystemProgram.createAccount({
 
 ```typescript
 const ixInitializeImmutableOwner = createInitializeImmutableOwnerInstruction(
-	pkAccount.publicKey,         // Token account to be initialized with immutable owner extension
+	kpAccount.publicKey,         // Token account to be initialized with immutable owner extension
 	TOKEN_2022_PROGRAM_ID        // Token 2022 program ID, required for the extension
 );
 ```
@@ -185,15 +185,15 @@ const ixInitializeImmutableOwner = createInitializeImmutableOwnerInstruction(
 
 ```typescript
 const ixInitializeAccount = createInitializeAccountInstruction(
-	pkAccount.publicKey,         // The new token account to be initialized
+	kpAccount.publicKey,         // The new token account to be initialized
 	mint,                        // The mint that this account will hold tokens of
-	pkOwner.publicKey,           // The owner of the account (who holds the tokens)
+	kpOwner.publicKey,           // The owner of the account (who holds the tokens)
 	TOKEN_2022_PROGRAM_ID        // Token 2022 program ID
 );
 ```
-- **`pkAccount.publicKey`**: The token account being initialized. This account will be able to hold tokens from the mint specified.
+- **`kpAccount.publicKey`**: The token account being initialized. This account will be able to hold tokens from the mint specified.
 - **`mint`**: The mint associated with the tokens that this account will hold.
-- **`pkOwner.publicKey`**: The public key of the owner of the token account. This account will hold and manage the tokens minted by the **mint**.
+- **`kpOwner.publicKey`**: The public key of the owner of the token account. This account will hold and manage the tokens minted by the **mint**.
 - **`TOKEN_2022_PROGRAM_ID`**: The SPL Token 2022 program manages this account and enables token extensions, such as **Immutable Owner**.
 
 
@@ -218,11 +218,11 @@ const tx = new Transaction().add(
 const sigTx = await sendAndConfirmTransaction(
 	connection,                     // Solana connection object
 	tx,                             // The transaction containing all the instructions
-	[pkPayer, pkAccount],           // Signers (the payer and the new token account)
+	[kpPayer, kpAccount],           // Signers (the payer and the new token account)
 	undefined                       // Optional commitment level (can be left as default)
 );
 ```
-- **Signers**: The transaction needs to be signed by the payer (`pkPayer`), who is paying for the transaction, and the newly created account (`pkAccount`), which is being initialized.
+- **Signers**: The transaction needs to be signed by the payer (`kpPayer`), who is paying for the transaction, and the newly created account (`kpAccount`), which is being initialized.
 
 
 ### Summary

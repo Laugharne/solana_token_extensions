@@ -150,8 +150,8 @@ const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
 ```typescript
 const ixCreateAccount = SystemProgram.createAccount({
-	fromPubkey      : pkPayer.publicKey,        // Payer of the transaction fees
-	newAccountPubkey: pkMint.publicKey,         // Public key for the new mint account
+	fromPubkey      : kpPayer.publicKey,        // Payer of the transaction fees
+	newAccountPubkey: kpMint.publicKey,         // Public key for the new mint account
 	space           : mintLen,                  // Space required for the mint (calculated above)
 	lamports        : lamports,                 // Lamports needed for rent exemption
 	programId       : TOKEN_2022_PROGRAM_ID,    // Token 2022 program to enable extensions
@@ -179,7 +179,7 @@ const accountState = AccountState.Frozen;
 
 ```typescript
 const ixInitializeDefaultAccountState = createInitializeDefaultAccountStateInstruction(
-	pkMint.publicKey,      // The mint for which the default account state will be set
+	kpMint.publicKey,      // The mint for which the default account state will be set
 	accountState           // The state new token accounts should start with (Frozen in this case)
 );
 ```
@@ -197,10 +197,10 @@ const ixInitializeDefaultAccountState = createInitializeDefaultAccountStateInstr
 const decimals = 9;
 
 const ixInitializeMint = createInitializeMintInstruction(
-	pkMint.publicKey,           // The mint's public key
+	kpMint.publicKey,           // The mint's public key
 	decimals,                   // Number of decimal places for the token (e.g., 9 for a fungible token)
-	pkMintAuthority.publicKey,  // Public key of the mint authority (who can mint tokens)
-	pkMintAuthority.publicKey,  // Public key of the freeze authority (who can freeze/unfreeze accounts)
+	kpMintAuthority.publicKey,  // Public key of the mint authority (who can mint tokens)
+	kpMintAuthority.publicKey,  // Public key of the freeze authority (who can freeze/unfreeze accounts)
 	TOKEN_2022_PROGRAM_ID       // Program ID for Token 2022 (required for extensions)
 );
 ```
@@ -224,14 +224,14 @@ const tx = new Transaction().add(
 ```
 
 **`sendAndConfirmTransaction`**: Sends the transaction to the Solana blockchain and waits for confirmation. The signers include:
-  - **`pkPayer`**: The account paying for the transaction.
-  - **`pkMint`**: The mint account being created.
+  - **`kpPayer`**: The account paying for the transaction.
+  - **`kpMint`**: The mint account being created.
 
 ```typescript
 const sigTx = await sendAndConfirmTransaction(
 	connection,          // Solana connection object
 	tx,                  // The transaction to send
-	[pkPayer, pkMint]    // Signers (payer for fees and mint authority)
+	[kpPayer, kpMint]    // Signers (payer for fees and mint authority)
 );
 ```
 

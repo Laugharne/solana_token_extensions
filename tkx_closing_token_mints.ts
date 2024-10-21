@@ -31,18 +31,18 @@ const main = async () => {
 		title("Solana Token Extensions (Closing Token Mint)");
 
 		info("Get keys...")
-		const pkPayer = await readWalletFile("payer", cluster);
-		if( pkPayer == null) {return;}
-		displayWallet("Payer", pkPayer);
+		const kpPayer = await readWalletFile("payer", cluster);
+		if( kpPayer == null) {return;}
+		displayWallet("Payer", kpPayer);
 
-		const pkMint = Keypair.generate();
-		displayWallet("Mint", pkMint);
+		const kpMint = Keypair.generate();
+		displayWallet("Mint", kpMint);
 
-		const pkMintAuthority = Keypair.generate();
-		displayWallet("Mint auth.", pkMintAuthority);
+		const kpMintAuthority = Keypair.generate();
+		displayWallet("Mint auth.", kpMintAuthority);
 
-		const pkCloseAuthority = Keypair.generate();
-		displayWallet("Close auth.", pkCloseAuthority);
+		const kpCloseAuthority = Keypair.generate();
+		displayWallet("Close auth.", kpCloseAuthority);
 
 		console.log("");
 
@@ -53,8 +53,8 @@ const main = async () => {
 		subTitle("Create account");
 
 		const ixCreateAccount = SystemProgram.createAccount({
-			fromPubkey      : pkPayer.publicKey,
-			newAccountPubkey: pkMint.publicKey,
+			fromPubkey      : kpPayer.publicKey,
+			newAccountPubkey: kpMint.publicKey,
 			space           : mintLen,
 			lamports        : lamports,
 			programId       : TOKEN_2022_PROGRAM_ID,
@@ -63,8 +63,8 @@ const main = async () => {
 		subTitle("Close Authority Init.");
 
 		const ixInitializeMintCloseAuthority = createInitializeMintCloseAuthorityInstruction(
-			pkMint.publicKey,
-			pkCloseAuthority.publicKey,
+			kpMint.publicKey,
+			kpCloseAuthority.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
@@ -74,10 +74,10 @@ const main = async () => {
 		infoPair("Decimals", decimals);
 
 		const ixInitializeMint = createInitializeMintInstruction(
-			pkMint.publicKey,
+			kpMint.publicKey,
 			decimals,
-			pkMintAuthority.publicKey,
-			pkMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
+			kpMintAuthority.publicKey,
 			TOKEN_2022_PROGRAM_ID
 		);
 
@@ -92,7 +92,7 @@ const main = async () => {
 		const sigTx = await sendAndConfirmTransaction(
 			connection,
 			tx,
-			[pkPayer, pkMint],
+			[kpPayer, kpMint],
 			undefined	// ??
 		);
 
@@ -101,10 +101,10 @@ const main = async () => {
 		// Close the account
 		const sigTxClose = await closeAccount(
 			connection,
-			pkPayer,
-			pkMint.publicKey,
-			pkPayer.publicKey,
-			pkCloseAuthority,
+			kpPayer,
+			kpMint.publicKey,
+			kpPayer.publicKey,
+			kpCloseAuthority,
 			[],
 			undefined,
 			TOKEN_2022_PROGRAM_ID
