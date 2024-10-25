@@ -1,6 +1,23 @@
 # Solana Token Extensions
 
 
+
+<!-- TOC -->
+
+- [Solana Token Extensions](#solana-token-extensions)
+	- [Overview](#overview)
+		- [What are Token Extensions?](#what-are-token-extensions)
+		- [Not just metadata !](#not-just-metadata-)
+		- [Available Token Extensions](#available-token-extensions)
+		- [How to Use Token Extensions?](#how-to-use-token-extensions)
+		- [Conclusion](#conclusion)
+	- [Starter kits](#starter-kits)
+	- [Resources](#resources)
+
+<!-- /TOC -->
+
+
+
 ## Overview
 
 **Token Extensions** are additional data structures associated with token accounts (_SPL Tokens_) to extend their functionalities.
@@ -75,9 +92,7 @@ Here are some of the **Token Extensions** available in the SPL program on Solana
 To use these extensions, you need to interact with the **SPL Token Program** using the appropriate structures and instructions. Here are the general steps to add an extension to an SPL token:
 
 1. **Create a Token Account with Extension**: When creating a new SPL token, you can specify one or more extensions for that token.
-
-2. **Initialize the Extension**: Use the instructions from the **SPL Token Program** to initialize and configure the desired extension (_e.g., set up transfer fees or specific rules for the token_).
-
+2. **Initialize the Extension**: Use the instructions from the **SPL Token Program** to initialize and configure the desired extension (_set up transfer fees or specific rules for the token_).
 3. **Manage the Extension via Transactions**: Once initialized, the extension can be managed through transactions using the extension's specific instructions. For example, you can update transfer fees or change the management authority of an extension.
 
 
@@ -86,7 +101,7 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 **Token Extensions** on Solana provide additional flexibility for token management by allowing custom functionalities to be added without modifying the core SPL token standard. They are particularly useful for DeFi applications, NFT platforms, and other use cases requiring advanced token management.
 
 
-## Starters
+## Starter kits
 
 | Token Extensions                                                   |
 | ------------------------------------------------------------------ |
@@ -98,13 +113,14 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 | ⚙️ [Default Account State](./markdown/default_account_state.md)    |
 | 🚧 [Closing Token Mint](./markdown/closing_token_mints.md)         |
 | 🏷️ [Token Metadata](./markdown/token_metadata.md)                  |
-| 🪝 [Token Transfer Hooks](./markdown/token_transfer_hooks.md)      |
 | 💸 [Token Transfer Fees](./markdown/token_transfer_fees.md)        |
+| 🪝 [Token Transfer Hooks](./markdown/token_transfer_hooks.md)      |
 
 
-## Source
+## Resources
 
-[Token Extensions on Solana Developer Guides - YouTube](https://www.youtube.com/playlist?list=PLilwLeBwGuK6imBuGLSLmzMEyj6yVHGDO)
+- [Token Extensions on Solana Developer Guides - YouTube](https://www.youtube.com/playlist?list=PLilwLeBwGuK6imBuGLSLmzMEyj6yVHGDO)
+- [Token22 - YouTube](https://www.youtube.com/playlist?list=PLmAMfj0qP2wy3VkQwBSghl4pMn1Nngq_P)
 
 
 ----
