@@ -1,5 +1,4 @@
 
-
 # [00:00](https://youtu.be/LsduWRtT3r8?t=0)  Transfer Hooks Overview
 
 ----
@@ -17,45 +16,274 @@
 # [01:30](https://youtu.be/LsduWRtT3r8?t=90)  Understanding Transfer Hook Basics
 
 ## Mechanism of Transfer Hooks
-- [01:54](https://youtu.be/LsduWRtT3r8?t=114)  When transferring tokens between accounts, the token program calls the user's program via a CPI (Cross-Program Invocation), executing the defined transfer hook instruction.
+- [01:54](https://youtu.be/LsduWRtT3r8?t=114)  When transferring tokens between accounts, the token program calls the user's program via a CPI (Cross-Program Invocation), executing the defined transfer hook instruction. `use spl_transfer_hook_interface::instruction::{ExecuteInstruction, TransferHookInstruction};`
 - [02:16](https://youtu.be/LsduWRtT3r8?t=136)  To implement this, one must adhere to the SPL (Solana Program Library) transfer hook interface by creating necessary instructions and PDAs that store additional account information required for transfers.
 
 ## Implementation Details
 - [02:38](https://youtu.be/LsduWRtT3r8?t=158)  The process involves unpacking the transfer hook instruction data and matching it with program instructions. This allows execution on every token transfer.
 - [03:00](https://youtu.be/LsduWRtT3r8?t=180)  A fallback function is needed since the token program operates as a native program; it ensures proper handling of incoming instructions.
+    ```rust
+    pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
+
+        msg!("Hello Transfer Hook!");
+
+        Ok(())
+    }
+
+    pub fn fallback<'info>(
+        program_id: &Pubkey,
+        accounts:   &'info [AccountInfo<'info>],
+        data:       &[u8],
+    ) -> Result<()> {
+
+        let instruction: TransferHookInstruction = TransferHookInstruction::unpack(data)?;
+
+        // match instruction discriminator to transfer hook interface execute instruction
+        // token2022 program CPIs this instruction on token transfer
+        match instruction {
+            TransferHookInstruction::Execute { amount } => {
+                let amount_bytes = amount.to_le_bytes();
+
+                // invoke custom transfer hook instruction on our program
+                __private::__global::transfer_hook(program_id, accounts, &amount_bytes)
+            }
+            _ => return Err(ProgramError::InvalidInstructionData.into()),
+        }
+    }
+    ```
+
 # [03:23](https://youtu.be/LsduWRtT3r8?t=203)  Creating Transfer Hooks
 
 ## Setting Up Accounts
 - [03:23](https://youtu.be/LsduWRtT3r8?t=203)  To perform transfers effectively, all required accounts must be predefined due to Solana's structure where each instruction needs all relevant accounts included.
 - [03:56](https://youtu.be/LsduWRtT3r8?t=236)  An outer account metadata vector is created to calculate size and costs associated with these extra accounts before establishing PDAs that hold this metadata.
+    ```rust
+    let account_metas: Vec<spl_tlv_account_resolution::account::ExtraAccountMeta> = vec![
+
+    ];
+
+    let account_size: u64 = ExtraAccountMetaList::size_of(account_metas.len())? as u64;
+
+    let lamports: u64 = Rent::get()?.minimum_balance(account_size as usize);
+
+    let mint: Pubkey = ctx.accounts.mint.key();
+
+    // PDA seeds
+    let signer_seeds: &[&[&[u8]]] = &[&[
+        b"extra-account-metas",
+        &mint.as_ref(),
+        &[ctx.bumps.extra_account_meta_list],
+    ]];
+    ```
 
 ## Running Tests
-- [04:20](https://youtu.be/LsduWRtT3r8?t=260)  The command `Anchor test --detach` allows local validators to run continuously while monitoring transactions in real-time through an explorer interface.
+- [04:20](https://youtu.be/LsduWRtT3r8?t=260)  The command `anchor test --detach` allows local validators to run continuously while monitoring transactions in real-time through an explorer interface.
+
+    ```
+    Transfer Signature: 5P5PHAkmNMNnCZkoxK8fvEdJyJErv9jUpzRAiPsk8neFmYbwe6d8eqpvCYsmkDumKftp89ZUuCrcGnLoCnmrvfTz
+        ✔ Transfer Hook with Extra Account Meta (398ms)
+    ```
+    **Program Instruction Logs**
+
+    ```
+    > Program logged: "Instruction: TransferChecked"
+    > Program invoked: Unknown Program (DrWbQtYJGtsoRwzKqAbHKHKsCJJfpysudF39GBVFSxub)
+      > Program logged: "Instruction: TransferHook"
+      > Program logged: "Hello Transfer Hook!"
+      > Program consumed: 8524 of 185337 compute units
+      > Program returned success
+    > Program consumed: 27498 of 200000 compute units
+    > Program returned success
+    ```
+    See: **Program logged: "Hello Transfer Hook!"** with `TransferHook` instructions!
+
 # [04:45](https://youtu.be/LsduWRtT3r8?t=285)  Client Code Walkthrough
 
 ## Initializing Client Components
-- [05:06](https://youtu.be/LsduWRtT3r8?t=306)  The client code begins by creating an anchor provider and retrieving the program from its IDL (Interface Definition Language).
+- [05:06](https://youtu.be/LsduWRtT3r8?t=306)  The client code begins by creating an anchor provider and retrieving the program from its **IDL** (Interface Definition Language).
+
+    ```typescript
+    import { TransferHook } from "../target/types/transfer_hook";
+
+    ...
+
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
+
+    const program    = anchor.workspace.TransferHook as Program<TransferHook>;
+    ```
+
 - [05:27](https://youtu.be/LsduWRtT3r8?t=327)  It establishes connections using default wallets typical in Solana setups while defining mint key pairs and source/recipient token accounts.
+    - `const connection = provider.connection;`
+    - `const mint = new Keypair();`
+    - `const sourceTokenAccount = getAssociatedTokenAddressSync(...)`
+    - `const destinationTokenAccount = getAssociatedTokenAddressSync(...)`
+    - Extra accounts
+    ```typescript
+    const [extraAccountMetaListPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("extra-account-metas"), mint.publicKey.toBuffer()],
+      program.programId
+    );
+    ```
+    - Mint Account with Transfer Hook Extension
+    ```typescript
+    const extensions = [ExtensionType.TransferHook];
+    const mintLen    = getMintLen(extensions);
+    const lamports   =
+      await provider.connection.getMinimumBalanceForRentExemption(mintLen);
+    ```
+
 
 ## Account Management
+
 # [06:37](https://youtu.be/LsduWRtT3r8?t=397)  Creating Token Accounts and Transfers
 
 ## Setting Up Token Accounts
 - [06:37](https://youtu.be/LsduWRtT3r8?t=397)  The process begins with creating the associated token account for both the wallet and destination, followed by mint creation.
-- [06:59](https://youtu.be/LsduWRtT3r8?t=419)  A Program Derived Address (PDA) is established from the program to manage extra account metadata during this setup.
+    ```typescript
+    const transaction = new Transaction().add(
+      SystemProgram.createAccount({
+        ...
+      }),
+      createInitializeTransferHookInstruction(
+        ...
+      ),
+      createInitializeMintInstruction(
+        ...
+      )
+    );
+
+    const txSig = await sendAndConfirmTransaction(
+      provider.connection,
+      transaction,
+      [wallet.payer, mint]
+    );
+    ```
+
+- [06:59](https://youtu.be/LsduWRtT3r8?t=419)  A Program Derived Address (PDA) is established from the program to manage **extra account metadata** during this setup.
+    ```typescript
+    const initializeExtraAccountMetaListInstruction = await program.methods
+      .initializeExtraAccountMetaList()
+      .accounts({
+        mint                : mint.publicKey,
+        extraAccountMetaList: extraAccountMetaListPDA,
+      })
+      .instruction();
+
+    const transaction = new Transaction().add(
+      initializeExtraAccountMetaListInstruction
+    );
+
+    const txSig = await sendAndConfirmTransaction(
+      provider.connection,
+      transaction,
+      [wallet.payer],
+      { skipPreflight: true, commitment: "confirmed" }
+    );
+    ```
 
 ## Transferring Tokens
+
 - [07:23](https://youtu.be/LsduWRtT3r8?t=443)  The transfer operation involves a helper function that retrieves necessary information about token accounts and prepares them for transfer.
+    ```typescript
+    const amount       = 1 * 10 ** decimals;
+    const bigIntAmount = BigInt(amount);
+
+    const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
+      connection,
+      sourceTokenAccount,
+      mint.publicKey,
+      destinationTokenAccount,
+      wallet.publicKey,
+      bigIntAmount,
+      decimals,
+      [],
+      "confirmed",
+      TOKEN_2022_PROGRAM_ID
+    );
+
+    const transaction = new Transaction().add(
+      transferInstruction
+    );
+
+    const txSig = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [wallet.payer],
+      { skipPreflight: true }
+    );
+    ```
 - [07:45](https://youtu.be/LsduWRtT3r8?t=465)  Each account's metadata is added to the instruction, allowing multiple calls to the transfer hook within the program.
+    ```typescript
+    const amount       = 1 * 10 ** decimals;
+    const bigIntAmount = BigInt(amount);
+
+    // Standard token transfer instruction
+    const transferInstruction = await createTransferCheckedWithTransferHookInstruction(
+      connection,
+      sourceTokenAccount,
+      mint.publicKey,
+      destinationTokenAccount,
+      wallet.publicKey,
+      bigIntAmount,
+      decimals,
+      [],
+      "confirmed",
+      TOKEN_2022_PROGRAM_ID
+    );
+
+    const transaction = new Transaction().add(
+      transferInstruction
+    );
+
+    const txSig = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [wallet.payer],
+      { skipPreflight: true }
+    );
+    ```
 
 ## Error Handling in Transfers
+
 - [08:07](https://youtu.be/LsduWRtT3r8?t=487)  It’s crucial to note that token accounts or mint cannot be altered post-initialization; they are immutable once set.
-- [08:30](https://youtu.be/LsduWRtT3r8?t=510)  An example of error handling is introduced where a panic occurs if an amount exceeding 50 tokens is attempted for transfer.
+- [08:30](https://youtu.be/LsduWRtT3r8?t=510)  An example of **error handling** is introduced where a **panic** occurs if an amount exceeding 50 tokens is attempted for transfer.
+    ```rust
+    pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
+
+        if amount > 50 {
+            panic!("The amount is too big {0}", amount);
+        }
+
+        Ok(())
+    }
+    ```
+
+    **Program Instruction Logs**
+
+    ```
+    > Program logged: "Instruction: TransferChecked"
+    > Program invoked: Unknown Program (DrWbQtYJGtsoRwzKqAbHKHKsCJJfpysudF39GBVFSxub)
+      > Program logged: "Instruction: TransferHook"
+      > Program logged: "panicked  at 'The amount is too big 1000000000', programs/transfer-hookk/src/lib.rs:69:13"
+      > Program consumed: 12257 of 182346 compute units
+      > Program returned error: "SBF program panicked"
+    > Program consumed: 29911 of 200000 compute units
+    > Program returned error: "Program failed to complete"
+    ```
+
 # [09:40](https://youtu.be/LsduWRtT3r8?t=580)  Implementing Advanced Features
 
 ## Creating a Counter with PDAs
 - [09:40](https://youtu.be/LsduWRtT3r8?t=580)  The discussion shifts towards implementing a counter that increments each time tokens are transferred, requiring additional account management.
 - [10:01](https://youtu.be/LsduWRtT3r8?t=601)  A new account structure named `counter` is defined, which will hold count data as part of its functionality.
+
+    ```rust
+    #[account]
+    pub struct CounterAccount {
+      pub count: u64,
+    }
+    ```
 
 ## Compiling and Testing Code
 - [10:35](https://youtu.be/LsduWRtT3r8?t=635)  Initial compilation reveals errors due to missing flags in the counter account structure; adjustments are made accordingly.
@@ -63,16 +291,62 @@
 
 ## Debugging Errors
 - [11:52](https://youtu.be/LsduWRtT3r8?t=712)  As errors arise during testing, it becomes evident that certain required properties were not specified correctly in the program's logic.
+
 # [13:59](https://youtu.be/LsduWRtT3r8?t=839)  Creating and Managing Dynamic PDAs in Token Accounts
+
+
+```typescript
+const [counterPDA] = PublicKey.findProgramAddressSync(
+  [Buffer.from("counter")],
+  program.programId
+);
+
+...
+
+const initializeExtraAccountMetaListInstruction = await program.methods
+  .initializeExtraAccountMetaList()
+  .accounts({
+    mint                : mint.publicKey,
+    extraAccountMetaList: extraAccountMetaListPDA,
+    counterAccount      : counterPDA
+  })
+  .instruction();
+```
+
 
 ## Setting Up the Account
 - [13:59](https://youtu.be/LsduWRtT3r8?t=839)  The speaker discusses creating an account with assistance from a co-pilot tool, highlighting various types of accounts such as "AO Auto extra account Mets" and "new with seat."
+    ```rust
+    let account_metas: Vec<spl_tlv_account_resolution::account::ExtraAccountMeta> = vec![
+        ExtraAccountMeta::new_with_seeds(
+            &[Seed::Literal {
+                bytes: "counter".as_bytes().to_vec(),
+            }],
+            false,  // is_signer
+            true,   // is_payer
+          )?,
+        ];
+    ```
 - [14:23](https://youtu.be/LsduWRtT3r8?t=863)  An error arises due to incorrect imports; the necessary components include the state, extra account meta list, and seed from the account.
+    ```rust
+    use spl_tlv_account_resolution::{
+        state::ExtraAccountMetaList,
+        account::ExtraAccountMeta,
+        seeds::Seed
+    };
+    ```
 - [14:56](https://youtu.be/LsduWRtT3r8?t=896)  The structure of extra account metadata is explained, emphasizing its discriminator, address, and writable status for counter modification.
 
 ## Implementing Counter Functionality
 - [15:20](https://youtu.be/LsduWRtT3r8?t=920)  The speaker aims to implement a counter that tracks token transfers. Initial attempts show success in running code without errors.
 - [15:44](https://youtu.be/LsduWRtT3r8?t=944)  A counter increment operation is introduced; it successfully updates the transfer count from zero to one.
+    ```rust
+    ctx.accounts.counter_account.count += 1;
+    msg!(
+        "This token has been transferred {0} times",
+        ctx.accounts.counter_account.count
+    );
+    ```
 - [16:08](https://youtu.be/LsduWRtT3r8?t=968)  The concept of collecting statistics on token transfers is discussed, indicating potential applications for tracking usage.
 
 ## Modifying PDA for Token Ownership

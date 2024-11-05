@@ -1,3 +1,14 @@
+- [How to use the Transfer Hooks Token Extension Part 2 - YouTube](https://www.youtube.com/watch?v=LsduWRtT3r8) ✨
+- [Token Extensions: Transfer Hook (Hello world) | Solana](https://solana.com/developers/guides/token-extensions/transfer-hook#hello-world-transfer-hook) ✨
+- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world) ✨
+
+```bash
+cd token_transfer_hooks
+anchor b
+npm i chai
+code .
+```
+
 
 
 --------
@@ -47,6 +58,10 @@ When interacting with a transfer-hook program, it's possible to send an instruct
 
 **Examples:**
 - [Token Extensions: Transfer Hook (Hello world) | Solana](https://solana.com/developers/guides/token-extensions/transfer-hook#hello-world-transfer-hook) ✨
-- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world) ✨
+- [GitHub - Woody4618/token22_examples](https://github.com/Woody4618/token22_examples/tree/main) ✨
+  - [token22_examples/TransferHookHelloWorld at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookHelloWorld)
+  - [token22_examples/TransferHookCounter at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookCounter)
+  - [token22_examples/TransferHookWhitelist at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookWhitelist)
+- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world)
 - [program-examples/tokens/token-2022 at main · solana-developers/program-examples · GitHub](https://github.com/solana-developers/program-examples/tree/main/tokens/token-2022)
 - [GitHub - buffalojoec/transfer-hook-order-tracker: Example using SPL Token 2022 Transfer Hook to track orders](https://github.com/buffalojoec/transfer-hook-order-tracker)
