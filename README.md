@@ -103,6 +103,8 @@ To use these extensions, you need to interact with the **SPL Token Program** usi
 
 ## Starter kits
 
+Looking to dive into the world of **Solana token extensions** but not sure where to start? We've got you covered! In this section, you'll find a curated list of **functional starter kits** designed to help you hit the ground running.
+
 | Token Extensions                                                   |
 | ------------------------------------------------------------------ |
 | 👔 [Permanent Delegate](./markdown/permanent_delegate.md)          |

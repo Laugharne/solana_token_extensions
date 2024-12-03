@@ -350,22 +350,97 @@ const initializeExtraAccountMetaListInstruction = await program.methods
 - [16:08](https://youtu.be/LsduWRtT3r8?t=968)  The concept of collecting statistics on token transfers is discussed, indicating potential applications for tracking usage.
 
 ## Modifying PDA for Token Ownership
+
 - [16:44](https://youtu.be/LsduWRtT3r8?t=1004)  To create a unique counter per token account, modifications are made to include the owner's public key in the PDA (Program Derived Address).
-- [17:19](https://youtu.be/LsduWRtT3r8?t=1039)  Adjustments are made in client-side code to ensure proper referencing of payer information instead of mint data.
+    ```rust
+    #[account(
+      init_if_needed,
+      seeds = [b"counter", payer.key().as_ref()],
+      bump,
+      payer = payer,
+      space = 16
+    )]
+    pub counter_account: Account<'info, CounterAccount>,
+    ```
+
+    ```rust
+    #[account(
+      mut,
+      seeds = [
+        b"counter",
+        owner.key().as_ref()
+      ],
+      bump
+    )]
+    pub counter_account: Account<'info, CounterAccount>,
+    ```
+- [17:19](https://youtu.be/LsduWRtT3r8?t=1039)  Adjustments are made in **client-side code** to ensure proper referencing of payer information instead of mint data.
+    ```typescript
+    const [extraAccountMetaListPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from("extra-account-metas"), mint.publicKey.toBuffer()],
+      program.programId
+    );
+    ```
 
 ## Error Handling and Data Extraction
 - [17:51](https://youtu.be/LsduWRtT3r8?t=1071)  An error occurs due to incorrect account metadata passing; adjustments are needed for additional accounts based on token data.
-- [18:15](https://youtu.be/LsduWRtT3r8?t=1095)  The method for extracting owner information from token accounts is detailed, focusing on byte positions within the data structure.
+    ```rust
+    #[account(
+      mut,
+      seeds = [
+        b"counter",
+        owner.key().as_ref()
+      ],
+      bump
+    )]
+    pub counter_account: Account<'info, CounterAccount>,
+    ```
+- [18:15](https://youtu.be/LsduWRtT3r8?t=1095)  The method for extracting owner information from token accounts is detailed, focusing on byte positions within the data structure [19:06](https://youtu.be/LsduWRtT3r8?t=1146).
+    ```rust
+    let account_metas: Vec<spl_tlv_account_resolution::account::ExtraAccountMeta> = vec![
+      ExtraAccountMeta::new_with_seeds(
+        &[
+          Seed::Literal {
+            bytes: "counter".as_bytes().to_vec(),
+          },
+          Seed::AccountData {
+            account_index: 0,
+            data_index   : 32,
+            length       : 32
+          }
+        ],
+        false,	// is_signer
+        true,	// is_payer
+      )?,
+    ];
+    ```
+
 
 ## Finalizing Dynamic PDAs
+
 - [19:13](https://youtu.be/LsduWRtT3r8?t=1153)  The process of deriving dynamic PDAs using specific fields from token accounts is elaborated upon.
 - [20:14](https://youtu.be/LsduWRtT3r8?t=1214)  Emphasis is placed on ensuring that PDAs exist prior to operations like transferring tokens. This requires preemptive creation through user actions on a website interface.
 
-## Implementing Access Control via Whitelisting
 # [21:19](https://youtu.be/LsduWRtT3r8?t=1279)  Whitelist and Blacklist Mechanisms in Token Transfers
 
 ## Implementing a Whitelist for Token Transfers
+
 - [21:19](https://youtu.be/LsduWRtT3r8?t=1279)  The whitelist will now be structured as a vector of public keys, allowing checks against the destination public key during transfers.
+    ```rust
+    #[account]
+    pub struct CounterAccount {
+        pub count     : u64,
+        pub authority : Pubkey,
+        pub white_list: Vec<Pubkey>,
+    }
+    ```
+
+    in `transfer_hook()`:
+    ```rust
+    if !ctx.accounts.counter_account.white_list.contains(&ctx.accounts.destination_token.key()) {
+        panic!("Account not in the white list");
+    }
+    ```
 - [21:55](https://youtu.be/LsduWRtT3r8?t=1315)  A check is performed to ensure that the destination token account is included in the whitelist; otherwise, the transfer fails.
 - [22:19](https://youtu.be/LsduWRtT3r8?t=1339)  An `add to whitelist` function can be implemented to manage accounts, ensuring only authorized users can add new entries.
 - [22:52](https://youtu.be/LsduWRtT3r8?t=1372)  Error handling is crucial; unauthorized attempts to modify the whitelist should trigger an error or panic response.
@@ -384,7 +459,10 @@ const initializeExtraAccountMetaListInstruction = await program.methods
 ## Future Considerations and Enhancements
 - [26:19](https://youtu.be/LsduWRtT3r8?t=1579)  While current methods may not be user-friendly, they provide foundational capabilities for implementing transfer costs effectively.
 
------
+
+----
+
+## Transcription
 
 - [00:00:00](https://www.youtube.com/watch?v=n-ym1utpzhk?t=0) ➜ [Music] hello everybody today we're going to talk again about transfer Hooks and this is because the first guide is already
 - [00:00:08](https://www.youtube.com/watch?v=n-ym1utpzhk?t=8) ➜ slightly out of date and I still got a bunch of questions from uh many people about um details what you can do with transfer Hooks and whatnot um so first

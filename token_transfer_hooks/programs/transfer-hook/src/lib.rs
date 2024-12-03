@@ -30,9 +30,25 @@ pub mod transfer_hook {
 		// The `addExtraAccountsToInstruction` JS helper function resolving incorrectly
 		let account_metas: Vec<spl_tlv_account_resolution::account::ExtraAccountMeta> = vec![
 			ExtraAccountMeta::new_with_seeds(
-				&[Seed::Literal {
-					bytes: "counter".as_bytes().to_vec(),
-				}],
+				&[
+					Seed::Literal {
+						bytes: "counter".as_bytes().to_vec(),
+					},
+					Seed::AccountData {
+
+						// - `account_index: 0`: This specifies the index of the account in the account list that the seed is
+						// referring to. In this case, it is referring to the account at index 0.
+						account_index: 0,
+
+						// - `data_index: 32`: This specifies the starting index within the account data where the seed should
+						// start reading data from. In this case, it is starting at index 32.
+						data_index   : 32,
+
+						// - `length: 32`: This specifies the length of data that the seed should read from the specified
+						// account data. In this case, it is reading 32 bytes of data.
+						length       : 32
+					}
+				],
 				false,	// is_signer
 				true,	// is_payer
 			)?,
@@ -81,13 +97,29 @@ pub mod transfer_hook {
 			panic!("The amount is too big {0}", amount);
 		}
 
+		if !ctx.accounts.counter_account.white_list.contains(&ctx.accounts.destination_token.key()) {
+			panic!("Account not in the white list");
+		}
+
 		ctx.accounts.counter_account.count += 1;
+
 		msg!(
 			"This token has been transferred {0} times",
 			ctx.accounts.counter_account.count
 		);
 
 		msg!("Hello Transfer Hook!");
+
+		Ok(())
+	}
+
+	pub fn add_to_white_list(ctx: Context<TransferHook>, address: Pubkey) -> Result<()> {
+
+		if !ctx.accounts.counter_account.authority.eq(&ctx.accounts.owner.key()) {
+			panic!("");
+		}
+
+		ctx.accounts.counter_account.white_list.push( address);
 
 		Ok(())
 	}
@@ -136,7 +168,7 @@ pub struct InitializeExtraAccountMetaList<'info> {
 
 	#[account(
 		init_if_needed,
-		seeds = [b"counter"],
+		seeds = [b"counter", payer.key().as_ref()],
 		bump,
 		payer = payer,
 		space = 16
@@ -176,13 +208,19 @@ pub struct TransferHook<'info> {
 
 	#[account(
 		mut,
-		seeds = [b"counter"],
+		seeds = [
+			b"counter",
+			owner.key().as_ref()
+		],
 		bump
 	)]
 	pub counter_account: Account<'info, CounterAccount>,
 
 }
+
 #[account]
 pub struct CounterAccount {
-	pub count: u64,
+	pub count     : u64,
+	pub authority : Pubkey,
+	pub white_list: Vec<Pubkey>,
 }

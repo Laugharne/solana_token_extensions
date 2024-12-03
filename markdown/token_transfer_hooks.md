@@ -1,6 +1,16 @@
-- [How to use the Transfer Hooks Token Extension Part 2 - YouTube](https://www.youtube.com/watch?v=LsduWRtT3r8) ✨
-- [Token Extensions: Transfer Hook (Hello world) | Solana](https://solana.com/developers/guides/token-extensions/transfer-hook#hello-world-transfer-hook) ✨
-- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world) ✨
+# Solana Token Extensions (Tokens Transfer Hooks)
+
+Token creators may need more control over how their token is transferred. The most prominent use case revolves around NFT royalties. Whenever a token is moved, the creator should be entitled to royalties, but due to the design of the current token program, it's impossible to stop a transfer at the protocol level.
+
+During transfer, Token-2022 calls into the program with the accounts specified at a well-defined program-derived address for that mint and program id. This call happens after all other transfer logic, so the accounts reflect the _end_ state of the transfer.
+
+When interacting with a transfer-hook program, it's possible to send an instruction - such as `Execute` (transfer) - to the program with only the accounts required for the `Transfer` instruction, and any extra accounts that the program may require are automatically resolved on-chain! This process is explained in detail in many of the linked `README` files below under **Resources**.
+
+## Install & launch...
+
+### Install
+
+If not previously done...
 
 ```bash
 cd token_transfer_hooks
@@ -8,13 +18,25 @@ anchor b
 npm i chai
 code .
 ```
+### Launch
 
+All the operation can been made on a **local node validator** instead of devnet, because of aidrop problems...
 
+By running `solana-test-validator` !
 
---------
+> ⚠️ Beware it creates local files and directories at the current working directory.
 
+If you choose to use it in **local**, you have to launch in **another terminal** the node validator:
 
+```bash
+solana-test-validator --reset
+```
 
+```bash
+anchor t
+```
+
+## Tokens Transfer Hooks with Token Extensions on Solana
 
 Imagine you're playing a game with your friends, and every time you give a toy to someone, there's a special rule that says you need to follow some extra steps—maybe check if they have enough room for the toy or if they can really accept it.
 
@@ -25,22 +47,26 @@ For example, the program could:
 - Add a note to the transfer, like a "_memo_" explaining why you sent it.
 - Check that both you and the other person are allowed to trade this token.
 
+### Summary:
 In short, **Token Transfer Hooks** let you add extra checks or actions every time a token is transferred, making sure everything follows special rules!
 
 **Token Transfer Hooks** on Solana can be used for a variety of purposes, such as enforcing certain conditions or requirements for token transfers, triggering smart contracts or other actions, or enabling the creation of more complex and flexible token systems.
 
 
---------
+## Code explaination
 
-Token creators may need more control over how their token is transferred. The most prominent use case revolves around NFT royalties. Whenever a token is moved, the creator should be entitled to royalties, but due to the design of the current token program, it's impossible to stop a transfer at the protocol level.
+The code for **Token Transfer Hooks** is the illustration of this **[Video Tutorial](https://www.youtube.com/watch?v=LsduWRtT3r8)** made by **[Jonas Hahn](https://x.com/SolPlay_jonas)**
 
-During transfer, Token-2022 calls into the program with the accounts specified at a well-defined program-derived address for that mint and program id. This call happens after all other transfer logic, so the accounts reflect the _end_ state of the transfer.
 
-When interacting with a transfer-hook program, it's possible to send an instruction - such as `Execute` (transfer) - to the program with only the accounts required for the `Transfer` instruction, and any extra accounts that the program may require are automatically resolved on-chain! This process is explained in detail in many of the linked `README` files below under **Resources**.
+You will find here the **[Video transcription](./transcription_hook_video.md)** of this tutorial
 
-[Video transcription](./transcription_hook_video.md)
 
---------
+### Summary
+
+This code and video demonstrate various basic examples and use cases of **token transfer hooks**. These include a "Hello World" setup, error handling, transfer counters, ownership management, and whitelist implementation.
+
+Starting from a [basic Anchor project](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world), the examples are executed and tested via an external TypeScript program triggered through Anchor tests, showcasing practical integration and functionality.
+
 
 ## Resources
 
@@ -62,6 +88,6 @@ When interacting with a transfer-hook program, it's possible to send an instruct
   - [token22_examples/TransferHookHelloWorld at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookHelloWorld)
   - [token22_examples/TransferHookCounter at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookCounter)
   - [token22_examples/TransferHookWhitelist at main · Woody4618/token22_examples · GitHub](https://github.com/Woody4618/token22_examples/tree/main/TransferHookWhitelist)
-- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world)
+- [Solana Playground | Solana IDE](https://beta.solpg.io/github.com/solana-developers/anchor-transfer-hook/tree/hello_world) ✨
 - [program-examples/tokens/token-2022 at main · solana-developers/program-examples · GitHub](https://github.com/solana-developers/program-examples/tree/main/tokens/token-2022)
 - [GitHub - buffalojoec/transfer-hook-order-tracker: Example using SPL Token 2022 Transfer Hook to track orders](https://github.com/buffalojoec/transfer-hook-order-tracker)

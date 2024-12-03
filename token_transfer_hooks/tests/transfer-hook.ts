@@ -64,7 +64,7 @@ describe("transfer-hook", () => {
   );
 
   const [counterPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("counter")],
+    [Buffer.from("counter"), wallet.publicKey.toBuffer()],
     program.programId
   );
 
